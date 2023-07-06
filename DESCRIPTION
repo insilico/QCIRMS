@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: c(person("Lily", "Clough", email="lily-clough@utulsa.edu", role=c("aut","cre")),
              person("Brett", "McKinney", email="brett-mckinney@utulsa.edu")
              )
-Imports: dplyr
+Imports: dplyr, isoreader
 Description: QCIRMS
 Encoding: UTF-8
 LazyData: true
