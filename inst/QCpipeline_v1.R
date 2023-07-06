@@ -14,9 +14,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ### basics - working with one dxf file 
 
-dataPath <- "./data/dxf_files/abiotic/"
-dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf" # sorry about the file names, done before me
-file_path <- paste(dataPath,dxf_file,sep="")
+#dataPath <- "./data/dxf_files/abiotic/"
+dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf" 
+# sorry about the file names, done before me
+dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
+
+#file_path <- paste(dataPath,dxf_file,sep="")
 
 # Can print summaries of any of the data files - info on contents
 file.summ<-read_summary(file_path)
