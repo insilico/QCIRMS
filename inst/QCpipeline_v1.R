@@ -22,7 +22,7 @@ dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS
 #file_path <- paste(dataPath,dxf_file,sep="")
 
 # Can print summaries of any of the data files - info on contents
-file.summ<-read_summary(file_path)
+file.summ<-read_summary(dataPath)
 #                   Length Class           Mode
 # version            1     package_version list
 # read_options       4     -none-          list

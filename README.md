@@ -8,18 +8,25 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
     >library(QCIRMS)
 
 ### Dependencies
+```
+install.packages(c('dplyr', 'pracma'))
+```
 
 ```
 library(devtools)
 install_github('isoverse/isoreader')
 ```
 
-```
-install.packages(c('dplyr', 'pracma'))
-```
-
 ### Examples
 
+# example dxf data file provided
+```
+library(QCIRMS)
+library(isoreader)
+dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
+dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
+file.summ<-read_summary(dataPath)
+```
 ### Abstract
 
 #### Contact
