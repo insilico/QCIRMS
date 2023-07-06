@@ -1,7 +1,7 @@
 Package: QCIRMS
 Title: Nearest-neighbor Projected-Distance Regression Optimized
 Version: 0.0.0.9000
-Authors@R: person("Lily", "Clough", role="aut")
+Authors@R: c(person("Lily", "Clough", email="lily-clough@utulsa.edu", role="aut"))
 Description: QCIRMS
 Encoding: UTF-8
 LazyData: true
