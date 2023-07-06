@@ -420,7 +420,7 @@ removeFailedAnalysesDXF<-function(sepList,
 
 
 # (3)
-# writeFailStats: function that writes output from QA/QC to txt files
+#' writeFailStats: function that writes output from QA/QC to txt files
 #' @param processed.list output list from removeFailedAnalysesDXF
 #' @param outputID string to identify the current data
 #' @param writeDir ; default value = getwd()
@@ -455,7 +455,7 @@ writeFailStats<-function(processed.list,outputID,writeDir=getwd()){
 
 
 # (4)
-# separate_by_analysis_numDXF
+#' separate_by_analysis_numDXF
 #' @param vend.df dataframe of the vendor tables from a directory of dxf files
 #' @return list of vendor dataframes separated by experiment (analysis number)
 #' @examples 
@@ -1014,7 +1014,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
 
 
 # (12)
-# all_dxf_files: function that returns the names of all dxf files in the current directory
+#' all_dxf_files: function that returns the names of all dxf files in the current directory
 #' @return vector containing the file names of all dxf files in the current directory
 #' @examples 
 #' Usage example
@@ -1034,7 +1034,7 @@ all_dxf_files<-function(){
 
 
 # (13)
-# vendor_info: function that returns the vendor table for a given dxf file
+#' vendor_info: function that returns the vendor table for a given dxf file
 #' @param file string that gives the name of the dxf file
 #' @return dataframe containing the vendor table informatino 
 #' @examples
@@ -1052,7 +1052,7 @@ vendor_info<-function(file){
 
 
 # (14)
-# vendor_info_all: function that returns the vendor tables for a vector of dxf file names
+#' vendor_info_all: function that returns the vendor tables for a vector of dxf file names
 #' @param files: vector containing dxf file names as elements
 #' @return list of vendor table dataframes
 #' @examples 
@@ -1071,9 +1071,9 @@ vendor_info_all<-function(files){
 
 
 # (15)
-# file_info: function that returns the isoreader file_info 
+#' file_info: function that returns the isoreader file_info 
 #' @param files 
-#' @return
+#' @return file infor data frame
 #' @examples 
 #' Usage example
 #' @export
@@ -1197,7 +1197,7 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 
 
 # (19)
-# QAQC_IRMS: wrapper function for QA/QC that writes and returns quality IRMS data and QC check diagnostics
+#' QAQC_IRMS: wrapper function for QA/QC that writes and returns quality IRMS data and QC check diagnostics
 #' @param unfilteredPath path to dxf files for QA/QC; default = current working directory
 #' @param expRef.df dataframe of expected reference peak times with column names = c("Ref_Peak_Nr", "Expected_Start", "Expected_Rt", "Expected_End")
 #' @param diff.t time interval in seconds for reference peak retention times; default = 10
