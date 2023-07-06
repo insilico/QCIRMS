@@ -501,8 +501,8 @@ separate_by_analysis_numDXF<-function(vend.df){
 
 
 # (5)
-# ref_samp_intensity_check
-# don't export yet
+#' ref_samp_intensity_check
+#' don't export yet
 ref_samp_intensity_check<-function(currFiltered,
                                    lengthEqual,
                                    dataName="data",
@@ -608,8 +608,8 @@ ref_samp_intensity_check<-function(currFiltered,
 
 
 # (6)
-# intensity_similarityDXF
-# don't export yet
+#' intensity_similarityDXF
+#' don't export yet
 intensity_similarityDXF<-function(vendAmpl,
                                   amplName="Ampl44",
                                   peakNr.vec,
@@ -653,8 +653,8 @@ intensity_similarityDXF<-function(vendAmpl,
 
 
 # (7)
-# threadRefSampListsToDF
-# don't export yet
+#' threadRefSampListsToDF
+#' don't export yet
 threadRefSampListsToDF<-function(ref.list,sample.list){
   # thread lists into dataframes
   # need total number of elements in the lists
@@ -720,8 +720,8 @@ threadRefSampListsToDF<-function(ref.list,sample.list){
 
 
 # (8)
-# reference_times_checkDXF
-# don't export yet
+#' reference_times_checkDXF
+#' don't export yet
 reference_times_checkDXF<-function(vend.df, 
                                    expectedPeak.num=5, 
                                    diff.t=10, 
@@ -796,8 +796,8 @@ reference_times_checkDXF<-function(vend.df,
 
 
 # (9)
-# maxNumPeaksDXF
-# don't export yet
+#' maxNumPeaksDXF
+#' don't export yet
 maxNumPeaksDXF<-function(vend.df,
                          maxExpectedPks=18,
                          expectedNonSampPks=7,
@@ -843,8 +843,8 @@ maxNumPeaksDXF<-function(vend.df,
 
 
 # (10)
-# isoR_similarityDXF
-# don't export yet
+#' isoR_similarityDXF
+#' don't export yet
 isoR_similarityDXF<-function(vend.df,
                              peakNr.vec,
                              sdC.thresh=0.1,
@@ -904,8 +904,8 @@ isoR_similarityDXF<-function(vend.df,
 
 
 # (11)
-# sample_peaks_processDXF
-# don't export yet
+#' sample_peaks_processDXF
+#' don't export yet
 sample_peaks_processDXF<-function(refTimesOutput,
                                   vend.df,
                                   flushExpT=135,
@@ -1073,7 +1073,7 @@ vendor_info_all<-function(files){
 # (15)
 #' file_info: function that returns the isoreader file_info 
 #' @param files 
-#' @return file infor data frame
+#' @return file info data frame
 #' @examples 
 #' Usage example
 #' @export
@@ -1101,8 +1101,8 @@ file_info<-function(files){
 
 
 # (16)
-# rmRefDatDXF
-# don't export yet
+#' rmRefDatDXF
+#' don't export yet
 rmRefDatDXF<-function(procList){
   refsFiltered<-procList[[7]]
   sampsFiltered<-procList[[8]]
@@ -1119,8 +1119,8 @@ rmRefDatDXF<-function(procList){
 
 
 # (17)
-# analysisNumsEqualDXF
-# don't export yet
+#' analysisNumsEqualDXF
+#' don't export yet
 analysisNumsEqualDXF<-function(refsList,sampsList){
   lenRefs<-length(refsList)
   if(lenRefs==0){
@@ -1163,8 +1163,8 @@ analysisNumsEqualDXF<-function(refsList,sampsList){
 
 
 # (18)
-# removeRefAnalysisDXF
-# don't expot yet
+#' removeRefAnalysisDXF
+#' don't expot yet
 removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
                                sampProcFailedInd=5, sampIsoFailInd=6){
   retSR.list<-list()
@@ -1233,7 +1233,9 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 QAQC_IRMS<-function(unfilteredPath, 
                     expRef.df, 
                     diff.t=10,
-                    checkIntStand=F, #TODO: make function and conditional
+                    checkIntStand=F, 
+                    standAcceptedVals.vec=c(-8.55,4.85,-3.85),
+                    standAcceptedSD.vec=c(0.2,0.2,0.2),
                     internalStandID=c("L1","H1","LW"),
                     useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
@@ -1315,15 +1317,24 @@ QAQC_IRMS<-function(unfilteredPath,
   
   sampsFiltered.df<-currFiltered[[2]]
   
-  ### TODO: internal standards check: optional flag
-  
-  #fileSumm<-c(length(combList),round(dim(currFiltered[[2]])[1]/9))
+  ### internal standards check: optional flag
+  if(checkIntStand==T){
+    print("analyzing internal standards...")
+    # get avg/sd of internal standards, do linear fit for calibration 
+    int_stand.list <- internal_standards_summary(data.df=sampsFiltered.df, dataName=dataName,
+                                                 standName.vec=internalStandID,
+                                                 standAcceptedVals.vec=standAcceptedVals.vec,
+                                                 standAcceptedSD.vec=standAcceptedSD.vec)
+    currFiltered[[3]]<-int_stand.list
+    
+  }
+ 
   print(paste("original number of experiments: ",
               length(combList)),sep="")
   print(paste("QA/QC'd number of experiments: ",
               length(unique(currFiltered[[2]]$Analysis))),sep="")
   return(currFiltered)
-  #}
+  
 }
 
 
@@ -1434,8 +1445,8 @@ reference_values_no_ratio<-function(files){
 #' @return dataframe containing peak numbers and areas
 #' @examples
 #' Usage Example
-#' pkAreas.df<-trap_area_allPks(raw.df,vi.df,"v44.mV")
-#' dont export yet
+#' pkAreas.df<-trap_area_allPks(raw.df=raw.df,vend.df=vi.df,mV.rawName="v44.mV")
+#' @export
 trap_area_allPks<-function(raw.df,vend.df,mV.rawName){
   # get mass voltage index
   massInd<-which(colnames(raw.df)==mV.rawName)
@@ -1443,7 +1454,7 @@ trap_area_allPks<-function(raw.df,vend.df,mV.rawName){
   massT<-raw.df$time.s
   massSt<-as.numeric(vend.df$Start)
   massEnd<-as.numeric(vend.df$End)
-  massPkNr<-as.numeric(vend.df$Peak_Nr)
+  massPkNr<-as.numeric(vend.df$Nr.)
   
   rawMass.mat<-matrix(c(massT,massV),ncol=2)
   rawMass.df<-as.data.frame(rawMass.mat)
@@ -1506,7 +1517,7 @@ all_PA_trap<-function(start.vec,end.vec,time.vec,int.vec,pk.Nrs){
 #' @examples
 #' Usage example
 #' peak_area_trap(start.v1[1],end.v1[1],time.s,v45)
-#' dont export yet
+#' @export
 peak_area_trap<-function(start.t,end.t,time.vec,int.vec){
   # get times for peak
   peak.t<-c()
@@ -1581,3 +1592,268 @@ generic_raw_plot<-function(raw.df,title){
 }
 
 
+# (31)
+#' DXFvendListFromID1: function
+#' don't export yet
+DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
+  vendRet.list<-list()
+  listIndex<-1
+  # separate into different experiments using analysis numbers
+  sepList<-separate_by_analysis_numDXF(all.df)
+  # look just for identifier1 that are in standName.vec
+  lenList<-length(sepList)
+  for(i in seq(1,lenList)){
+    currID<-sepList[[i]]$Identifier1[1]
+    currID
+    foundStand<-currID %in% standName.vec
+    foundStand
+    if(foundStand){ # get vend data and add to output list: Analysis,Identifier1,PkNr,d18O16O,d13C/12C
+      standVend<-sepList[[i]]
+      currAn.vec<-standVend$Analysis
+      currID.vec<-standVend$Identifier1
+      currPkNr.vec<-standVend$PeakNr
+      currd18O<-standVend$d18O16O
+      currd13C<-standVend$d13C12C
+      curr.df<-as.data.frame(matrix(c(currAn.vec,currID.vec,currPkNr.vec,currd18O,currd13C),ncol=5))
+      colnames(curr.df)<-c("Analysis","Identifier1","PkNr","d18O16O","d13C12C")
+      # add to list
+      vendRet.list[[listIndex]]<-curr.df
+      listIndex<-listIndex+1
+    }
+  }
+  return(vendRet.list)
+}
+
+
+# (32)
+#' avg_sd_d18O_standards: function to find d18O/16O averages and standard deviations for each set of files represented in input list
+#' @param allStandards_d18O.list list built from output of d18O_samples_list(), which retrieves sample peaks and d18O/16O data from specified files
+#' @param standNames character vector containing the names of the standards
+#' @param standAcceptedVals.vec numeric vector containing the accepted values of the standards
+#' @param accStandRatioSD numeric vector containing the accepted standard deviation values for each of the standards (in the same order as names in standNames)
+#' @return list of length 3 with the following elements:
+#'          [[1]]: dataframes of d18O/16O averages and standard deviations for each set of files from input
+#'          [[2]]: accepted and measured d18O/16O dataframe
+#'          [[3]]: acceptable and calculated standard deviations for d18O/16O
+#' @examples
+#' Usage Example
+#' L1_d18O.list<-d18O_samples_list(L1fileNames.vec)
+#' H1_d18O.list<-d18O_samples_list(H1fileNames.vec)
+#' LW_d18O.list<-d18O_samples_list(LWfileNames.vec)
+#' allStand_d18O.list<-list()
+#' allStand_d18O.list[[1]]<-L1_d18O.list
+#' allStand_d18O.list[[2]]<-H1_d18O.list
+#' allStand_d18O.list[[3]]<-LW_d18O.list
+#' AvgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
+#' dont export yet
+avg_sd_d18O_standards<-function(allStandards_d18O.list,
+                                standNames=c("L1","H1","LW"), isoName="d18O16O",
+                                standAcceptedVals.vec=c(-8.55,4.85,-3.85),
+                                accStandRatioSD=c(0.2,0.2,0.2)){
+  
+  # make df for avgs (avgs of all d18O in all files for particular standard)
+  standAccepted.mat<-matrix(standAcceptedVals.vec,nrow=length(standAcceptedVals.vec))
+  standAccepted.df<-as.data.frame(standAccepted.mat)
+  dim(standAccepted.df)
+  # start df -- will add average of all measured values
+  d18OstandVals_Avgs.df<-data.frame(matrix(rep(NA,3*(length(standNames))),ncol=3))
+  colNames<-c(paste("accepted_",isoName,sep=""),paste("measured_",isoName,sep=""))
+  colnames(d18OstandVals_Avgs.df)<-c("standard",colNames)
+  #rownames(d18OstandVals_Avgs.df)<-standNames
+  d18OstandVals_Avgs.df[,1]<-standNames
+  d18OstandVals_Avgs.df[,2]<-standAccepted.df
+  
+  # make df for SDs
+  SDAccepted.mat<-matrix(accStandRatioSD,ncol=1)
+  SDAccepted.df<-as.data.frame(SDAccepted.mat)
+  dim(SDAccepted.df)
+  # start df -- will add SD of all measured values
+  d18OstandVals_SDs.df<-data.frame(matrix(rep(NA,3*(length(standNames))),ncol=3))
+  sdColNames<-c(paste("accepted_SD_",isoName,sep=""),paste("calculated_SD_",isoName,sep=""))
+  colnames(d18OstandVals_SDs.df)<-c("standard",sdColNames)
+  #rownames(d18OstandVals_SDs.df)<-standNames
+  d18OstandVals_SDs.df[,1]<-standNames
+  d18OstandVals_SDs.df[,2]<-accStandRatioSD
+  
+  # initialize lists for return vals
+  #ret_files_d18.list<-list()
+  ret.list<-list()
+  
+  # intStandsTotal.list<-list()
+  # for(i in seq(1,length(standNames))){
+  #   intStandsTotal.list[[i]]<-NA
+  # }
+  
+  d18O.list<-allStandards_d18O.list
+  list.len<-length(d18O.list)
+  
+  # for each file - do at end?
+  #alld18OFile.list<-list()
+  #alld18OFile.index<-1
+  d18OFile.mat<-matrix(rep(NA,list.len*4),ncol=4) 
+  d18OFile.df<-as.data.frame(d18OFile.mat)
+  fileColNames<-c(paste("avg_",isoName,sep=""),paste("sd_",isoName,sep=""))
+  colnames(d18OFile.df)<-c("Analysis","standard",fileColNames)
+  
+  for(i in seq(1,list.len)){
+      # get sample peaks d18O/16O for one file
+      dlist.df<-d18O.list[[i]]
+      # get the filename
+      #fileN<-dlist.df$file_id[1]
+      curr_analysis<-dlist.df$Analysis[1]
+      curr_stand<-dlist.df$Identifier1[1]
+      # get the d18O data for the file
+      ind <- which(colnames(dlist.df)==isoName)
+      d18O.vec<-as.numeric(dlist.df[,ind])
+      #d13C.vec<-as.numeric(dlist.df$d13C12C)
+      
+      # put in vector of all d18O for the given standard (i iteration, over the 3 files for a standard)
+      #alld18O.vec<-c(alld18O.vec,d18O.vec)
+      # get avg d18O for each file
+      avg<-mean(d18O.vec)
+      # get sd for each file
+      sd<-sd(d18O.vec)
+      # put file_id, avg, and sd for each file in df
+      d18OFile.df[i,]<-cbind.data.frame(curr_analysis,curr_stand,avg,sd)
+  }
+  
+  stand_dir.df<-as.data.frame(matrix(rep(NA,3*length(standNames)),ncol=3))
+  colnames(stand_dir.df)<-c("standard",fileColNames)
+  # for each standard, total avg/sd in directory 
+  for(j in seq(1,length(standNames))){
+    curr.name<-standNames[j]
+    curr.ind<-which(d18OFile.df$standard == curr.name)
+    curr.dat <- d18OFile.df[curr.ind,]
+    curr.avg <- mean(curr.dat[,3])
+    curr.sd <- mean(curr.dat[,4])
+    curr.df<-cbind.data.frame(curr.name,curr.avg,curr.sd)
+    stand_dir.df[j,]<-curr.df
+  }
+  stand_dir.df
+  
+  d18OstandVals_SDs.df[,3] <- stand_dir.df[,3]
+  d18OstandVals_Avgs.df[,3] <- stand_dir.df[,2]
+  
+  ret.list[[1]] <- d18OFile.df
+  ret.list[[2]] <- d18OstandVals_Avgs.df
+  ret.list[[3]] <- d18OstandVals_SDs.df
+  
+  # add to list for dfs of file sets
+    #alld18OFile.list[[alld18OFile.index]]<-d18OFile.df
+    #alld18OFile.index<-alld18OFile.index+1
+    
+    # avg of all d18O in files for given standard
+    #d18OstandAvg<-mean(alld18O.vec)
+    # put in df to return
+    #d18OstandVals_Avgs.df$`measured_d18O16O`[i]<-d18OstandAvg
+    
+    # SD
+    #sdAllStandFiles<-sd(alld18O.vec)
+    #d18OstandVals_SDs.df$`calculated_SD_d18O16O`[i]<-sdAllStandFiles
+    
+    # return d18O.df in list
+    #ret_files_d18.list[[i]]<-d18OFile.df
+
+  # add values to return list
+  #ret_d18.list[[1]]<-ret_files_d18.list
+  #ret_d18.list[[2]]<-d18OstandVals_Avgs.df # all avgs
+  #ret_d18.list[[3]]<-d18OstandVals_SDs.df # all SDs
+  
+  return(ret.list)
+}
+
+
+# (33)
+#' stand_lm: function to perform the linear regression for the internal standards quality check and plot the results
+#' @param acceptedMeas.df dataframe with accepted and measured values for internal standards (rownames are thestandard names, colnames=c(accepted,measured))
+#' @return list whose first element is the lm model and the second is the model summary
+#' @examples
+#' Usage Example
+#' avgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
+#' standDat<-testAvg_d18O[[2]]
+#' stand.lm<-stand_lm(standDat)
+#' dont export yet
+stand_lm<-function(acceptedMeas.df,dataName){
+  ret.list<-list()
+  # linear regression
+  standard.fit<-lm(accepted_d18O16O~measured_d18O16O,data=acceptedMeas.df)
+  standard.fit
+  fit.summ<-summary(standard.fit)
+  # plot
+  plot(acceptedMeas.df$measured,acceptedMeas.df$accepted,col=c("orange","green","blue"),
+       main=paste("lm for accepted vs measured d18O standards: ",dataName,"\n",
+                  "r^2 = ",round(fit.summ$r.squared,4),sep=""), 
+       xlab="measured",ylab="accepted",pch=20)
+  legend("bottomright", legend=c("L1","LW","H1"),
+        col=c("orange","blue","green"), pch=20)
+  abline(standard.fit,col="light blue")
+  
+  ret.list[[1]]<-standard.fit
+  ret.list[[2]]<-fit.summ
+  return(ret.list)
+}
+
+
+# (34)
+#' internal_standards_summary: function 
+#' @param data.df dataframe of sample peak data 
+#' @param dataName dataset name
+#' @param standName.vec vector of internal standard names
+#' @param standAcceptedVals.vec vector of internal standard delta values
+#' @param standAcceptedSD.vec vector of acceptable internal standard SD in delta values
+#' @return list of four elements:
+#'   ret.list[[1]]: list of deltas by experiment
+#'   ret.list[[2]]: average values of deltas in the dataset
+#'   ret.list[[3]]: mean SD of deltas in the dataset
+#'   ret.list[[4]]: results of linear model using accepted and measured values
+#' Usage example
+#' @export
+internal_standards_summary <- function(data.df, dataName,
+                                       standName.vec=c("L1","H1","LW"),
+                                       standAcceptedVals.vec=c(-8.55,4.85,-3.85),
+                                       standAcceptedSD.vec=c(0.2,0.2,0.2)){
+  ret.list<-list()
+  
+  standIsoR.list<-DXFvendListFromID1(all.df=samps.dat,standName.vec=standName.vec)
+  
+  standAvgSD<-avg_sd_d18O_standards(allStandards_d18O.list = standIsoR.list,
+                                    standNames=standName.vec,
+                                    standAcceptedVals.vec=standAcceptedVals.vec,
+                                    accStandRatioSD=standAcceptedSD.vec)
+  # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
+  standAnalyses.df<-standAvgSD[[1]]
+  write.table(standAnalyses.df,"interal_standards_analysis.csv",row.names=F,quote=F,)   
+  # average
+  avg_d18O<-standAvgSD[[2]]
+  write.table(avg_d18O,"avg_interal_standards.csv",row.names=F,quote=F,sep=",")
+  # standard deviations
+  sd_d18O<-standAvgSD[[3]]
+  write.table(sd_d18O,"sd_internal_standards.csv",row.names=F,quote=F,sep=",")
+  
+  ## save graph to file
+  pdf(file=paste("int_stand_lm.pdf",sep=""),width=6,height=4)
+  standlm<-stand_lm(avg_d18O,dataName=dataName)
+  dev.off()
+  
+  ## write stats
+  # slope, intercept, r^2
+  lmr2<-standlm[[2]]$r.squared
+  lmresid<-standlm[[2]]$residuals
+  
+  lmCoeff.df<-as.data.frame(matrix(c(standlm[[1]]$coefficients,lmr2,lmresid),ncol=6))
+  colnames(lmCoeff.df)<-c("intercept","slope","r^2","L1_resid","H1_resid","LW_resid")
+  
+  # write lm stats to file
+  write.table(lmCoeff.df,"intStand_lm.csv",row.names=F,quote=F,sep=",")
+  
+  # std error, t val and p val
+  lmCoeffStat<-standlm[[2]]$coefficients
+  write.table(lmCoeffStat,"intStand_coefficients.csv",row.names=T,quote=F,sep=",")
+  
+  # return data
+  ret.list[[1]]<-standIsoR.list
+  ret.list[[2]]<-avg_d18O
+  ret.list[[3]]<-sd_d18O
+  ret.list[[4]]<-standlm
+  return(ret.list)
+}

@@ -1,4 +1,3 @@
-# dependencies 
 #devtools::install_github("isoverse/isoreader")
 library(isoreader)
 library(dplyr)
@@ -8,21 +7,16 @@ library(pracma)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # load functions
-#source("QAQC_IRMS_functions_v1.R")
+library(QCIRMS)
 
 ##################
 
 ### basics - working with one dxf file 
-
-#dataPath <- "./data/dxf_files/abiotic/"
 dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf" 
-# sorry about the file names, done before me
 dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
 
-#file_path <- paste(dataPath,dxf_file,sep="")
-
 # Can print summaries of any of the data files - info on contents
-file.summ<-read_summary(dataPath)
+file.summ<-read_summary(file_path)
 #                   Length Class           Mode
 # version            1     package_version list
 # read_options       4     -none-          list
@@ -86,9 +80,32 @@ head(raw.df)
 # 2 170506_NaHCO3 L + NaCl U_.dxf CO2_zero CO2  d 18O/16O       -40.0     VSMOW
 
 
+# Can also get peak areas
+(trap_area_allPks(raw.df,vend.df,mV.rawName="v44.mV"))
+#    Pk_Nr  trap_area
+# 1      1 47.6436699
+# 2      2 47.6571723
+# 3      3  5.6953350
+# 4      4 47.6760681
+# 5      5 47.4243105
+# 6      6 23.7051077
+# 7      7  0.2369494
+# 8      8 22.5549720
+# 9      9 21.4485258
+# 10    10 20.3915933
+# 11    11 19.3905900
+# 12    12 18.4485201
+# 13    13 17.5371007
+# 14    14 16.6757975
+# 15    15 15.7937530
+# 16    16 15.0370583
+# 17    17 47.4650624
+
+
 # Can plot raw data (Intensity (mV) vs Rt)
 generic_raw_plot(raw.df,file_path)
 ## save to pdf
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 setwd("./plots/")
 pdf(file="one_dxf.pdf",width=6,height=4)
 generic_raw_plot(raw.df,file_path)
@@ -99,6 +116,7 @@ dev.off()
 # first get all filenames of .dxf files in the directory
 # path to dxf files (raw IRMS experimental data)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+dataPath<-"./data/dxf_files/abiotic/"
 setwd(dataPath)
 fileNames<-all_dxf_files() #uses current working directory
 rawList<-raw_data_all(fileNames)
@@ -115,10 +133,8 @@ dev.off()
 ###################
 ### QA/QC for a directory of volatile CO2 IRMS experiments
 
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
 # get expected times for reference peaks
-expRef.df<-read.table("./data/qc/referencePeaks_expectedTimes.txt")
+expRef.df<-read.table("~/Desktop/EuropaMLMS/SU23/data/qc/referencePeaks_expectedTimes.txt")
 expRef.df
 #   Ref_Peak_Nr Expected_Start Expected_Rt Expected_End
 # 1           1        27.1700     47.3888      50.4929
@@ -128,17 +144,17 @@ expRef.df
 # 5          16       843.3227    863.5029     866.6069
 
 
-# provide dataset name and set working directory to data location
+# provide dataset name
 dataName<-"abiotic"
 setwd(dataPath)
 
-### run QA/QC on directory of dxf files 
-# output written to directory where the data is
+# run QA/QC on directory of dxf files 
 # execute start <- ... to QAtime together (select then run) to print runtime
 start<-Sys.time()
 currFiltered<-QAQC_IRMS(unfilteredPath=dataPath,
                         expRef.df=expRef.df, 
-                        checkIntStand=F, #internalStandID=c("L1","H1","LW"),
+                        checkIntStand=T, 
+                        internalStandID=c("L1","H1","LW"),
                         dataName=dataName,
                         maxPkNum=18, 
                         expectedNonSampPks=7,
@@ -155,22 +171,80 @@ QAtime<-end-start
 QAtime # can be seconds to several minutes depending on directory size
 
 
-
-## visualize pass/fail in pdfs of chromatogram thumbnails
-# Get all filenames of .dxf files in the directory
+# get reference peak data that passed QA/QC
 refs.dat<-currFiltered[[1]]
 dim(refs.dat)
 #[1] 2175   44
 
+# get sample peak data 
 samps.dat<-currFiltered[[2]]
 dim(samps.dat)
 #[1] 3915   44
 colnames(samps.dat)
 
-# get file names of passed and failed samples for plots or further analysis
+
+### internal standards check and calibration: currently after QA/QC
+int_stand.list <- currFiltered[[3]]
+
+int_stand.list[[1]][[1]]
+#   Analysis Identifier1 PkNr          d18O16O           d13C12C
+# 1     2118          H1    7 4.63408927757558 -11.6554800648649
+# 2     2118          H1    8 4.57436254703358 -11.6447678139653
+# 3     2118          H1    9 4.61171923077752 -11.6692981344158
+# 4     2118          H1   10 4.64576054221344 -11.6502162196429
+# 5     2118          H1   11 4.63423343292502 -11.6225052367925
+# 6     2118          H1   12 4.57530067636935  -11.664273662242
+# 7     2118          H1   13  4.6707544365685 -11.5867468660957
+# 8     2118          H1   14 4.59079906736126 -11.6385947049331
+# 9     2118          H1   15 4.60301367958449 -11.5811913545488
+length(int_stand.list[[1]])
+# [1] 79
+
+# average delta for internal standards
+int_stand.list[[2]]
+#   standard accepted_d18O16O measured_d18O16O
+# 1       L1            -8.55        -9.135153
+# 2       H1             4.85         4.213694
+# 3       LW            -3.85        -4.628521
+
+# delta SD for internal standards
+int_stand.list[[3]]
+#   standard accepted_SD_d18O16O calculated_SD_d18O16O
+# 1       L1                 0.2            0.03996445
+# 2       H1                 0.2            0.04171608
+# 3       LW                 0.2            0.04295242
+
+standlm<-int_stand.list[[4]]
+standlm[[1]]
+# Coefficients:
+# (Intercept)  measured_d18O16O  
+# 0.6701            1.0011  
+
+standlm[[2]]
+# Residuals:
+# 1        2        3 
+# -0.07512 -0.03829  0.11341 
+# 
+# Coefficients:
+#   Estimate Std. Error t value Pr(>|t|)   
+# (Intercept)       0.67007    0.09408   7.122  0.08880 . 
+# measured_d18O16O  1.00107    0.01472  68.029  0.00936 **
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# Residual standard error: 0.1413 on 1 degrees of freedom
+# Multiple R-squared:  0.9998,	Adjusted R-squared:  0.9996 
+# F-statistic:  4628 on 1 and 1 DF,  p-value: 0.009357
+
+
+
+### visualize pass/fail in pdfs of chromatogram thumbnails
+# Get all filenames of .dxf files in the directory
 passFiles <- unique(samps.dat$fileId)
 
 # get failed
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+setwd("./data/dxf_files/abiotic/")
 dxfFileNames<-all_dxf_files()
 passedInd <- which(dxfFileNames %in% passFiles)
 failedFiles <- dxfFileNames[-passedInd]
@@ -188,4 +262,15 @@ dev.off()
 pdf(file="failed.pdf",width=6,height=4)
 generic_plot_all_raw(passed_raw.list) 
 dev.off()
+
+
+
+##########
+## TODO: oxygen isotope calibration using internal standard results - find previous code
+## TODO: filter out internal standards before further analysis - create function
+## TODO: take averages, sd of sample peak vals- use previously created functions 
+## TODO: time series feature extraction - use previously created functions 
+## TODO: labels - use previously created functions
+## TODO: markdown summarizing output from QA/QC
+
 
