@@ -3,9 +3,9 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
 
 ### To install:
 
-    >library(devtools)
-    >install_github("insilico/QCIRMS")  
-    >library(QCIRMS)
+>library(devtools)
+>install_github("insilico/QCIRMS")  
+>library(QCIRMS)
 
 ### Dependencies
 ```
@@ -19,8 +19,8 @@ install_github('isoverse/isoreader')
 
 ### Examples
 
-# example dxf data file provided
 ```
+# example dxf data file provided in package: inst/extdata
 library(QCIRMS)
 library(isoreader)
 dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
