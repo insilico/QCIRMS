@@ -3,19 +3,22 @@ library(isoreader)
 library(dplyr)
 library(pracma)
 
-# set working directory 
+# set working directory - sets wd of this script wherever you saved it 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # load functions
+#source("QAQC_IRMS_functions_v2.R")
 library(QCIRMS)
 
 ##################
 
 ### basics - working with one dxf file 
-dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf" 
-dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
 
 # Can print summaries of any of the data files - info on contents
+
+# example file in directory for library from Github (file_path)
+dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
+file_path <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
 file.summ<-read_summary(file_path)
 #                   Length Class           Mode
 # version            1     package_version list
@@ -34,7 +37,7 @@ file.summ<-read_summary(file_path)
 
 # Can get isoreader vendor info - "mass spectrometry" data - IRMS measurements and derived values
 vend.df<-vendor_info(file_path)
-head(vend.df)[1:3,1:10]
+head(vend.df)[,1:10]
 #                        file_id Nr.   Start      Rt     End  Ampl 44  Ampl 45  Ampl 46   BGD 44    BGD 45
 #1 170506_NaHCO3 L + NaCl U_.dxf   1  27.170  47.443  50.787 2425.983 2788.829 3307.896 1.207758 0.5735142
 #2 170506_NaHCO3 L + NaCl U_.dxf   2  66.880  87.153  90.497 2425.019 2787.828 3306.349 1.599683 0.9146100
@@ -53,6 +56,8 @@ head(raw.df)
 # 4 170506_NaHCO3 L + NaCl U_.dxf  4  0.836 1.117143 0.3941199 1.942465
 # 5 170506_NaHCO3 L + NaCl U_.dxf  5  1.045 1.124789 0.4151062 1.927152
 # 6 170506_NaHCO3 L + NaCl U_.dxf  6  1.254 1.113320 0.4131983 1.967350
+dim(raw.df)
+# [1] 4298    6
 
 
 # Can get the resistor information - sometimes useful according to Bethany
@@ -103,30 +108,36 @@ head(raw.df)
 
 
 # Can plot raw data (Intensity (mV) vs Rt)
-generic_raw_plot(raw.df,file_path)
-## save to pdf
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd("./plots/")
-pdf(file="one_dxf.pdf",width=6,height=4)
-generic_raw_plot(raw.df,file_path)
-dev.off()
+generic_raw_plot(raw.df=raw.df,title=dxf_file)
+
+## save plot to pdf in a results directory with the data label
+plotsPath<-"./QCresults/abiotic/" # could make a directory for results and store plots there
+generic_raw_plot(raw.df=raw.df, # intensity vs time dataframe
+                 title=dxf_file, # title on plot
+                 path=plotsPath, # path to write file
+                 write_pdf=T, # write pdf
+                 pdf_name="one_dxf.pdf") 
+
 
 
 # Can plot raw data of all files in a vector or directory
-# first get all filenames of .dxf files in the directory
-# path to dxf files (raw IRMS experimental data)
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-dataPath<-"./data/dxf_files/abiotic/"
-setwd(dataPath)
-fileNames<-all_dxf_files() #uses current working directory
-rawList<-raw_data_all(fileNames)
+# first get all filenames of .dxf files in the data directory
 
-# plot all raw data using code that writes pdfs
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd("./plots/")
-pdf(file="all_dxf.pdf",width=6,height=4)
-generic_plot_all_raw(rawList) 
-dev.off()
+# path to dxf files (raw IRMS experimental data)
+dataPath<-"./data/dxf_files/abiotic/" # could save your data in a structure like this
+# get dxf file names
+fileNames<-all_dxf_files(path=dataPath) # looks in current wd if path not specified 
+# make list of raw ampl vs time dataframes (time-series)
+rawList<-raw_data_all(fileNames,path=dataPath) # looks in curr wd if path to data not specified 
+length(rawList)
+# [1] 789
+
+# plot all raw data using code that writes pdfs in the specified working directory
+generic_plot_all_raw(rawList, # list of dataframes
+                     path=plotsPath, # use path for plots defined before
+                     write_pdf=T,
+                     pdf_name="all_dxf.pdf") 
+
 
 
 
@@ -134,7 +145,11 @@ dev.off()
 ### QA/QC for a directory of volatile CO2 IRMS experiments
 
 # get expected times for reference peaks
-expRef.df<-read.table("~/Desktop/EuropaMLMS/SU23/data/qc/referencePeaks_expectedTimes.txt")
+# path to ref peaks data in library, or set to where you stored this file
+refFile<-"referencePeaks_expectedTimes.txt"
+refTime_path <- system.file("extdata/qc/", refFile, package = "QCIRMS")
+
+expRef.df<-read.table(refTime_path)
 expRef.df
 #   Ref_Peak_Nr Expected_Start Expected_Rt Expected_End
 # 1           1        27.1700     47.3888      50.4929
@@ -146,12 +161,15 @@ expRef.df
 
 # provide dataset name
 dataName<-"abiotic"
-setwd(dataPath)
+
+# paths to data and results... make sure slash is part of results path to write files
+# same directory plots are in, now store QC results
+resultsPath<-"./QCresults/abiotic/"
 
 # run QA/QC on directory of dxf files 
 # execute start <- ... to QAtime together (select then run) to print runtime
 start<-Sys.time()
-currFiltered<-QAQC_IRMS(unfilteredPath=dataPath,
+currFiltered<-QAQC_IRMS(unfilteredPath=dataPath, # specified previously
                         expRef.df=expRef.df, 
                         checkIntStand=T, 
                         internalStandID=c("L1","H1","LW"),
@@ -160,12 +178,14 @@ currFiltered<-QAQC_IRMS(unfilteredPath=dataPath,
                         expectedNonSampPks=7,
                         sdCrefIso.thresh=0.1,
                         sdOrefIso.thresh=0.1,
-                        checkRelDiffIntensity=T,
+                        checkRelDiffIntensity=T, # flag for refSamp intensity check
+                        refSamp_relDiffInt.thresh=0.75, #*new
                         amplName="Ampl44",
-                        relDiffInt.thresh=0.1,#for reference peaks, ref:samp hard-coded for now
-                        sdCsampIso.thresh=0.3,#change for biotic=0.6
-                        sdOsampIso.thresh=0.2,# change for biotic=0.6
-                        verbose=T)
+                        ref_relDiffInt.thresh=0.1,
+                        sdCsampIso.thresh=0.3, # change for biotic=0.6
+                        sdOsampIso.thresh=0.2, # change for biotic=0.6
+                        outPath=resultsPath, # *new, specify path to results directory to write files
+                        verbose=T) 
 end<-Sys.time()
 QAtime<-end-start
 QAtime # can be seconds to several minutes depending on directory size
@@ -183,9 +203,10 @@ dim(samps.dat)
 colnames(samps.dat)
 
 
-### internal standards check and calibration: currently after QA/QC
+### internal standards check results
+# calibration: currently after QA/QC, will include as an option in future version
 int_stand.list <- currFiltered[[3]]
-
+# internal standards for each sample peak in an experiment
 int_stand.list[[1]][[1]]
 #   Analysis Identifier1 PkNr          d18O16O           d13C12C
 # 1     2118          H1    7 4.63408927757558 -11.6554800648649
@@ -197,7 +218,7 @@ int_stand.list[[1]][[1]]
 # 7     2118          H1   13  4.6707544365685 -11.5867468660957
 # 8     2118          H1   14 4.59079906736126 -11.6385947049331
 # 9     2118          H1   15 4.60301367958449 -11.5811913545488
-length(int_stand.list[[1]])
+length(int_stand.list[[1]]) # number of experiments that are internal standards
 # [1] 79
 
 # average delta for internal standards
@@ -214,12 +235,14 @@ int_stand.list[[3]]
 # 2       H1                 0.2            0.04171608
 # 3       LW                 0.2            0.04295242
 
+# linear model for calibration
 standlm<-int_stand.list[[4]]
 standlm[[1]]
 # Coefficients:
 # (Intercept)  measured_d18O16O  
 # 0.6701            1.0011  
 
+# stats for linear model
 standlm[[2]]
 # Residuals:
 # 1        2        3 
@@ -238,39 +261,27 @@ standlm[[2]]
 
 
 
-### visualize pass/fail in pdfs of chromatogram thumbnails
+##### visualize pass/fail in pdfs of chromatogram thumbnails
 # Get all filenames of .dxf files in the directory
 passFiles <- unique(samps.dat$fileId)
 
-# get failed
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd("./data/dxf_files/abiotic/")
-dxfFileNames<-all_dxf_files()
-passedInd <- which(dxfFileNames %in% passFiles)
-failedFiles <- dxfFileNames[-passedInd]
+# get passed and failed files from previously defined file names
+passedInd <- which(fileNames %in% passFiles)
+failedFiles <- fileNames[-passedInd]
 
-passed_raw.list<-raw_data_all(passFiles)
-failed_raw.list<-raw_data_all(failedFiles)
+# get intensity vs time data for passed and failed experiments
+passed_raw.list <- raw_data_all(passFiles, path=dataPath)
+failed_raw.list <- raw_data_all(failedFiles, path=dataPath)
 
 # plot all raw data and write to pdfs
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-setwd("./plots/")
-pdf(file="passed.pdf",width=6,height=4)
-generic_plot_all_raw(passed_raw.list) 
-dev.off()
+# passed QC
+generic_plot_all_raw(raw.list=passed_raw.list, path=plotsPath,
+                     write_pdf=T,
+                     pdf_name="passed_qc_spectra.pdf") 
+# failed QC
+generic_plot_all_raw(failed_raw.list, path=plotsPath,
+                     write_pdf=T,
+                     pdf_name="failed_qc_spectra.pdf") 
 
-pdf(file="failed.pdf",width=6,height=4)
-generic_plot_all_raw(passed_raw.list) 
-dev.off()
-
-
-
-##########
-## TODO: oxygen isotope calibration using internal standard results - find previous code
-## TODO: filter out internal standards before further analysis - create function
-## TODO: take averages, sd of sample peak vals- use previously created functions 
-## TODO: time series feature extraction - use previously created functions 
-## TODO: labels - use previously created functions
-## TODO: markdown summarizing output from QA/QC
 
 

@@ -3,7 +3,8 @@
 #' combineVendFileInfo: function that processes vendor data for a directory of dxf files
 #' @param path string that is the path to the directory of .dxf files
 #' @param combColNames vector of combined column names for which to extract data from the dxf vendor table
-#' @param outputID string that identifies the dataset 
+#' @param outputID string that identifies the dataset
+#' @param outPath path to results directory 
 #' @return list of IRMS analysis vendor table dataframes 
 #' @examples 
 #' Usage example
@@ -19,8 +20,11 @@
 #'                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
 #'                                  outputID = "abiotic")
 #' @export
-combineVendFileInfo<-function(path,combColNames,outputID){
+combineVendFileInfo<-function(path,combColNames,outputID,outPath){
+  oldwd<-getwd()
   # make a combined dataframe for vendor and file info
+  setwd(path)
+  
   files<-all_dxf_files()
   vend<-vendor_info_all(files)
   fileInfo<-file_info(files)
@@ -52,17 +56,23 @@ combineVendFileInfo<-function(path,combColNames,outputID){
       combList[[i]]<-fileName
     }
   }
+  
   # if there is missing data remove that file
   if(length(failedInd)>0){
     print("Removing files with no data from the analysis...")
     onlyDat<-combList[c(-failedInd)]
     failedFiles.df<-as.data.frame(matrix(failedFiles),ncol=1)
     colnames(failedFiles.df)<-c("No_Data")
+    setwd(oldwd)
+    setwd(outPath)
     write.table(failedFiles.df,file=paste(outputID,"_NoData.csv",sep=""),row.names=F,quote=F,sep=",")
+    setwd(oldwd)
     return(onlyDat)
   }else{
+    setwd(oldwd)
     return(combList)
   }
+  
 }
 
 
@@ -263,7 +273,7 @@ removeFailedAnalysesDXF<-function(sepList,
           failedRefIsoSDC.vec<-c(failedRefIsoSDC.vec,refIsoCheck[[2]]$SD_d13C12C)
           failedRefIsoReason.vec<-c(failedRefIsoReason.vec,refReason)
         } else{ # if it passes check intensity similarities
-          # check the reference peak isotope similarities
+          # check the reference peak intensity similarities
           refIntCheck<-intensity_similarityDXF(vendAmpl=sep.list[[i]]$Ampl44[refPkNr.vec],
                                                amplName=amplName,
                                                peakNr.vec=refPkNr.vec,
@@ -423,12 +433,13 @@ removeFailedAnalysesDXF<-function(sepList,
 #' writeFailStats: function that writes output from QA/QC to txt files
 #' @param processed.list output list from removeFailedAnalysesDXF
 #' @param outputID string to identify the current data
-#' @param writeDir ; default value = getwd()
 #' @examples 
 #' Usage example 
 #' writeFailStats(processed.list=processed.list,outputID="abiotic",writeDir=getwd())
 #' dont export yet
-writeFailStats<-function(processed.list,outputID,writeDir=getwd()){
+writeFailStats<-function(processed.list,outputID){
+  #oldwd<-getwd()
+  #setwd(writeDir)
   # analyses that failed the peak number check
   pkNrFileName<-paste(outputID,"_failedPkNr.csv",sep="")
   write.table(processed.list[[1]],pkNrFileName,row.names=F,quote=F,sep=",")
@@ -451,6 +462,7 @@ writeFailStats<-function(processed.list,outputID,writeDir=getwd()){
     refSampIntFileName<-paste(outputID,"_failedRefSampInt.csv",sep="")
     write.table(processed.list[[9]],refSampIntFileName,row.names=F,quote=F,sep=",")
   }
+  #setwd(oldwd)
 }
 
 
@@ -508,7 +520,10 @@ ref_samp_intensity_check<-function(currFiltered,
                                    dataName="data",
                                    amplName="Ampl44",
                                    relDiffInt.thresh=0.75,
+                                   outPath,
                                    verbose=T){
+  oldwd<-getwd()
+  setwd(outPath)
   if(lengthEqual){
     # separate dfs into lists
     refFiltered.df<-currFiltered[[1]]
@@ -554,7 +569,7 @@ ref_samp_intensity_check<-function(currFiltered,
       refSampIntCheck<-intensity_similarityDXF(vendAmpl=refSampAmpl.df$Ampl44,#TODO: make more general
                                                amplName=amplName,
                                                peakNr.vec=refSampAmpl.df$PeakNr,
-                                               relDiffInt.thresh=relDiffInt.thresh)
+                                            relDiffInt.thresh=relDiffInt.thresh)
       
       maxRefSampRelDiff<-refSampIntCheck[[3]]
       # failedRefSampIntID1.vec<-c()
@@ -602,7 +617,7 @@ ref_samp_intensity_check<-function(currFiltered,
     # write failed refSampInt check results to file
     write.table(failedRefSampInt.df,file=fileName,quote=F,row.names=F,sep=",")
   }
-  
+  setwd(oldwd)
   return(currFiltered)
 }
 
@@ -1015,12 +1030,19 @@ sample_peaks_processDXF<-function(refTimesOutput,
 
 # (12)
 #' all_dxf_files: function that returns the names of all dxf files in the current directory
+#' @param path string containing the path to the dxf files; if not specified function looks in the current wd
 #' @return vector containing the file names of all dxf files in the current directory
 #' @examples 
 #' Usage example
 #' dxfFileNames <- all_dxf_files()
 #' @export
-all_dxf_files<-function(){
+all_dxf_files<-function(path=NULL){
+  # if path specified go there, else use curr wd
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
   all_files<-list.files()
   dxfFiles<-c()
   for(i in seq(1:length(all_files))){
@@ -1029,6 +1051,11 @@ all_dxf_files<-function(){
       dxfFiles<-c(dxfFiles,currFile)
     }
   }
+  # change back
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+  
   return(dxfFiles)
 }
 
@@ -1073,7 +1100,7 @@ vendor_info_all<-function(files){
 # (15)
 #' file_info: function that returns the isoreader file_info 
 #' @param files 
-#' @return file info data frame
+#' @return dataframe of file info
 #' @examples 
 #' Usage example
 #' @export
@@ -1203,6 +1230,8 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param diff.t time interval in seconds for reference peak retention times; default = 10
 #' @param checkIntStand whether to perform internal standards calibration; default = F; not currently functional
 #' @param internalStandID vector of internal standard names for calibration; default = c("L1","H1","LW")
+#' @param standAcceptedVals.vec vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),
+#' @param standAcceptedSD.vec vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)
 #' @param useColNames vector of column names to extract vendor data from in the dxf files; default = c("fileId","Identifier1","Analysis","Preparation","DateTime",
 #'                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 #'                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
@@ -1219,17 +1248,36 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param sdCrefIso.thresh maximum acceptable delta 13C for the reference peaks; default value = 0.1
 #' @param sdOrefIso.thresh maximum acceptable delta 18O for the reference peaks; default value = 0.1
 #' @param checkRelDiffIntensity whether to check the reference:sample peak relative difference in peak intensities; default = T
+#' @param refSamp_relDiffInt.thresh value for reference-sample peak intensity similarity check; default value = 0.75
 #' @param amplName name of the column to use for the peak intensity checks; default value = "Ampl44"
-#' @param relDiffInt.thresh maximum acceptable difference in reference peak relative intensity; default value = 0.1
+#' @param ref_relDiffInt.thresh maximum acceptable difference in reference peak relative intensity; default value = 0.1
 #' @param sdCsampIso.thresh maximum acceptable delta 13C for the sample peaks; default value = 0.3
 #' @param sdOsampIso.thresh maximum acceptable delta 18O for the sample peaks; default value = 0.2
 #' @param verbose whether to print information about the checks; default value = T
+#' @param outPath path to the directory where results will be written; default is the current wd
 #' @return list of two elements: ret.list[[1]] - reference peak data that passed QA/QC
 #'                               ret.list[[2]] - sample peak data that passed QA/QC
+#'                               ret.list[[3]] - results of the internal standards check and calibration
 #' @examples 
 #' Usage example
-#' qc_data.list <- QAQC_IRMS()
-#' @export 
+#' qc_data.list <- QAQC_IRMS(unfilteredPath=dataPath, 
+#'                           expRef.df=expRef.df, 
+#'                           checkIntStand=T, 
+#'                           internalStandID=c("L1","H1","LW"),
+#'                           dataName="abiotic",
+#'                           maxPkNum=18, 
+#'                           expectedNonSampPks=7,
+#'                           sdCrefIso.thresh=0.1,
+#'                           sdOrefIso.thresh=0.1,
+#'                           checkRelDiffIntensity=T, 
+#'                           refSamp_relDiffInt.thresh=0.75,
+#'                           amplName="Ampl44",
+#'                           ref_relDiffInt.thresh=0.1,
+#'                           sdCsampIso.thresh=0.3, # change for biotic=0.6
+#'                           sdOsampIso.thresh=0.2, # change for biotic=0.6
+#'                           outPath=resultsPath,
+#'                           verbose=T)
+#' @export  
 QAQC_IRMS<-function(unfilteredPath, 
                     expRef.df, 
                     diff.t=10,
@@ -1252,10 +1300,12 @@ QAQC_IRMS<-function(unfilteredPath,
                     sdCrefIso.thresh=0.1,
                     sdOrefIso.thresh=0.1,
                     checkRelDiffIntensity=T,
+                    refSamp_relDiffInt.thresh=0.75,
                     amplName="Ampl44",
-                    relDiffInt.thresh=0.1,
+                    ref_relDiffInt.thresh=0.1,
                     sdCsampIso.thresh=0.3,
                     sdOsampIso.thresh=0.2,
+                    outPath=getwd(),
                     verbose=T #TODO: save "bad" data
 ){
   # return data that passes QC
@@ -1263,9 +1313,8 @@ QAQC_IRMS<-function(unfilteredPath,
   
   ### QC for DXF files
   # create directory for results
-  writeDir<-paste(unfilteredPath,"QCresults/",sep="")
-  
-  combList<-combineVendFileInfo(unfilteredPath,useColNames,dataName)
+  oldwd<-getwd()
+  combList<-combineVendFileInfo(unfilteredPath,useColNames,dataName,outPath=outPath)
   origNumFiles<-length(combList) 
   
   if(verbose==T){
@@ -1280,7 +1329,8 @@ QAQC_IRMS<-function(unfilteredPath,
                                     diff.t=diff.t,
                                     sdCrefIso.thresh=sdCrefIso.thresh, 
                                     expectedNonSampPks=expectedNonSampPks,
-                                    relDiffInt.thresh=0.1, amplName=amplName,
+                                    relDiffInt.thresh=ref_relDiffInt.thresh, 
+                                    amplName=amplName,
                                     sdOrefIso.thresh=sdOrefIso.thresh,
                                     sdCsampIso.thresh=sdCsampIso.thresh,
                                     sdOsampIso.thresh=sdOsampIso.thresh,
@@ -1295,44 +1345,47 @@ QAQC_IRMS<-function(unfilteredPath,
   if(length(currFiltered)>0){
     # check relative differences bt samp and ref intensity
     if(checkRelDiffIntensity && lengthEqual){
-      #print("checking relative difference between sample and reference peak intensity")
-      # TODO: 
-      #currFiltered,lengthEqual,dataName="data",amplName="Ampl44",relDiffInt.thresh=0.75,verbose=T
+      print("checking relative difference between sample and reference peak intensity")
       currFiltered<-ref_samp_intensity_check(currFiltered=currFiltered,
                                              lengthEqual=lengthEqual,
                                              dataName=dataName,
                                              amplName=amplName,
-                                             relDiffInt.thresh=0.75, #TODO: make another var for this func
+                                             relDiffInt.thresh=refSamp_relDiffInt.thresh,
+                                             outPath=outPath,
                                              verbose=verbose)
     }
   }
   # write to file in curr dir and combined directory
   # reference data
+  oldwd<-getwd()
+  setwd(outPath)
   write.csv(currFiltered[[1]],
             file=paste(dataName,"_refs_allChecks.csv",sep=""),quote=F,row.names=F)
   # sample data
   write.csv(currFiltered[[2]],file=paste(dataName,"_samps_allChecks.csv",sep=""),quote=F,row.names=F)
   # write failure summary
-  stat<-writeFailStats(currProc,dataName,writeDir)
+  stat<-writeFailStats(processed.list=currProc,outputID=dataName)#writeDir=outPath
   
   sampsFiltered.df<-currFiltered[[2]]
-  
+  #setwd(oldwd)
   ### internal standards check: optional flag
   if(checkIntStand==T){
     print("analyzing internal standards...")
     # get avg/sd of internal standards, do linear fit for calibration 
     int_stand.list <- internal_standards_summary(data.df=sampsFiltered.df, dataName=dataName,
+                                                 #outPath=outPath,
                                                  standName.vec=internalStandID,
                                                  standAcceptedVals.vec=standAcceptedVals.vec,
                                                  standAcceptedSD.vec=standAcceptedSD.vec)
     currFiltered[[3]]<-int_stand.list
     
   }
- 
+  setwd(oldwd)
   print(paste("original number of experiments: ",
               length(combList)),sep="")
   print(paste("QA/QC'd number of experiments: ",
               length(unique(currFiltered[[2]]$Analysis))),sep="")
+  
   return(currFiltered)
   
 }
@@ -1340,7 +1393,7 @@ QAQC_IRMS<-function(unfilteredPath,
 
 # (20)
 #' read_summary: read and print a summary of mass spec data from a .dxf file
-#' @param filename character string of the name of the .dxf file of data
+#' @param filename character string of the name of the .dxf file of data or full path to the file
 #' @return summary table of file contents
 #' @examples
 #' Usage example
@@ -1350,39 +1403,64 @@ read_summary<-function(filename){
   msdat<-iso_read_continuous_flow(filename)
   summ<-summary(msdat)
   print(summ)
+  return(summ)
 }
 
 
 # (21)
 #'raw_data: get the raw data from the specified .dxf file as a dataframe
 #' @param file character string defining the file to extract raw data from
+#' @param path character string of the path to the dxf file
 #' @return dataframe containing the raw data in the .dxf file
 #' @examples
 #' Usage example
 #' raw_data(data_files)
 #' @export
-raw_data<-function(file){
-  #num_files<-length(files)
+raw_data<-function(file,path=NULL){
+
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
   msdat<-iso_read_continuous_flow(file)#files[1:num_files]
   raw_dat<- msdat %>% iso_get_raw_data()
   raw_dat.df<-as.data.frame(raw_dat)
+  
+  # change back
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+  return(raw_dat.df)
 }
 
 
 # (22)
 #' raw_data_all: function to get all raw data from multiple files
 #' @param files vector of filenames to get raw data from
+#' @param path string of the path to the dxf files 
 #' @return a list containing raw data for each file
 #' @examples
 #' Usage example
 #' rawList<-raw_data_all(files)
 #' @export
-raw_data_all<-function(files){
+raw_data_all<-function(files,path=NULL){
+  
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
   raw.list<-list()
   for(i in seq(1,length(files))){
     raw.dat<-raw_data(files[i])
     raw.list[[i]]<-raw.dat
   }
+  # change back
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+  
   return(raw.list)
 }
 
@@ -1447,7 +1525,7 @@ reference_values_no_ratio<-function(files){
 #' Usage Example
 #' pkAreas.df<-trap_area_allPks(raw.df=raw.df,vend.df=vi.df,mV.rawName="v44.mV")
 #' @export
-trap_area_allPks<-function(raw.df,vend.df,mV.rawName){
+trap_area_allPks<-function(raw.df, vend.df, mV.rawName){
   # get mass voltage index
   massInd<-which(colnames(raw.df)==mV.rawName)
   massV<-raw.df[,massInd]
@@ -1494,7 +1572,7 @@ trap_area_allPks<-function(raw.df,vend.df,mV.rawName){
 #' Usage Example
 #' all_PA_trap(start.v1,end.v1,time.s,v44,pk.Nrs)
 #' dont export yet
-all_PA_trap<-function(start.vec,end.vec,time.vec,int.vec,pk.Nrs){
+all_PA_trap<-function(start.vec, end.vec, time.vec, int.vec, pk.Nrs){
   all_areas<-c()
   for(i in seq(1:length(start.vec))){
     all_areas<-c(all_areas,peak_area_trap(start.vec[i],end.vec[i],time.vec,int.vec))
@@ -1518,7 +1596,7 @@ all_PA_trap<-function(start.vec,end.vec,time.vec,int.vec,pk.Nrs){
 #' Usage example
 #' peak_area_trap(start.v1[1],end.v1[1],time.s,v45)
 #' @export
-peak_area_trap<-function(start.t,end.t,time.vec,int.vec){
+peak_area_trap<-function(start.t, end.t, time.vec, int.vec){
   # get times for peak
   peak.t<-c()
   time.ind<-c()
@@ -1546,11 +1624,24 @@ peak_area_trap<-function(start.t,end.t,time.vec,int.vec){
 # (29)
 #' generic_plot_all_raw: function that plots all the raw data in a list containing raw data from different experiments
 #' @param raw.list list whose elements are the raw.df to be plotted
+#' @param path string of the path to the output directory
+#' @param write_pdf logical; whether to write a pdf of the graphs
+#' @param pdf_name string of the pdf filename, use extension ".pdf"
 #' @examples
 #' Usage Example
 #' generic_plot_all_raw(rawList)
 #' @export
-generic_plot_all_raw<-function(raw.list){
+generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_dxf.pdf"){
+  
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
+  if(write_pdf==T){
+    pdf(file=pdf_name,width=6,height=4)
+  }
+  
   raw.length<-length(raw.list)
   par(mfrow=c(2,3))
   for(i in seq(1,raw.length)){
@@ -1561,10 +1652,19 @@ generic_plot_all_raw<-function(raw.list){
     raw.title
     # plot
     if(dim(raw.dat)[1]>0){
-      generic_raw_plot(raw.dat,raw.title)
+      generic_raw_plot(raw.df=raw.dat,title=raw.title)
     }
   }
   par(mfrow=c(1,1))
+  
+  if(write_pdf==T){
+    dev.off()
+  }
+  
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+  
 }
 
 
@@ -1572,11 +1672,26 @@ generic_plot_all_raw<-function(raw.list){
 #' generic_raw_plot: function to plot raw data using generic plot
 #' @param raw.df full dataframe of raw data
 #' @param title title of the plot
+#' @param path string of the path to the output directory
+#' @param write_pdf logical; whether to write a pdf file of the plot
+#' @param pdf_name string of the pdf name; use the extension ".pdf"
 #' @examples
 #' Usage Example
 #' generic_raw_plot(rawDat.df,"170525_NaHCO3 L + NaCl L_.dxf")
 #' @export
-generic_raw_plot<-function(raw.df,title){
+generic_raw_plot<-function(raw.df, title, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
+  
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
+  if(write_pdf==T){
+    pdf(file=pdf_name,width=6,height=4)
+  }
+  
+  
+  
   #par(mfrow=c(1,1))
   # get intensity data for each mass
   v44<-raw.df$v44.mV
@@ -1589,6 +1704,15 @@ generic_raw_plot<-function(raw.df,title){
   lines(time.s,v45,type="l",col="green")
   lines(time.s,v44,type="l",col="blue")
   title(main=title)
+  
+  
+  if(write_pdf==T){
+    dev.off()
+  }
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+  
 }
 
 
@@ -1808,13 +1932,13 @@ stand_lm<-function(acceptedMeas.df,dataName){
 #'   ret.list[[4]]: results of linear model using accepted and measured values
 #' Usage example
 #' @export
-internal_standards_summary <- function(data.df, dataName,
+internal_standards_summary <- function(data.df, dataName, #outPath,
                                        standName.vec=c("L1","H1","LW"),
                                        standAcceptedVals.vec=c(-8.55,4.85,-3.85),
                                        standAcceptedSD.vec=c(0.2,0.2,0.2)){
   ret.list<-list()
   
-  standIsoR.list<-DXFvendListFromID1(all.df=samps.dat,standName.vec=standName.vec)
+  standIsoR.list<-DXFvendListFromID1(all.df=data.df,standName.vec=standName.vec)
   
   standAvgSD<-avg_sd_d18O_standards(allStandards_d18O.list = standIsoR.list,
                                     standNames=standName.vec,
@@ -1822,16 +1946,25 @@ internal_standards_summary <- function(data.df, dataName,
                                     accStandRatioSD=standAcceptedSD.vec)
   # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
   standAnalyses.df<-standAvgSD[[1]]
-  write.table(standAnalyses.df,"interal_standards_analysis.csv",row.names=F,quote=F,)   
+  
+  filePath<-paste("interal_standards_analysis.csv",sep="")
+  write.table(standAnalyses.df,filePath,row.names=F,quote=F,) 
+  
   # average
   avg_d18O<-standAvgSD[[2]]
-  write.table(avg_d18O,"avg_interal_standards.csv",row.names=F,quote=F,sep=",")
+  
+  filePath<-paste("avg_interal_standards.csv",sep="")
+  write.table(avg_d18O,filePath,row.names=F,quote=F,sep=",")
+  
   # standard deviations
   sd_d18O<-standAvgSD[[3]]
-  write.table(sd_d18O,"sd_internal_standards.csv",row.names=F,quote=F,sep=",")
+  
+  filePath<-paste("sd_internal_standards.csv",sep="")
+  write.table(sd_d18O,filePath,row.names=F,quote=F,sep=",")
   
   ## save graph to file
-  pdf(file=paste("int_stand_lm.pdf",sep=""),width=6,height=4)
+  filePath<-paste("int_stand_lm.pdf",sep="")
+  pdf(file=filePath,width=6,height=4)
   standlm<-stand_lm(avg_d18O,dataName=dataName)
   dev.off()
   
@@ -1844,11 +1977,14 @@ internal_standards_summary <- function(data.df, dataName,
   colnames(lmCoeff.df)<-c("intercept","slope","r^2","L1_resid","H1_resid","LW_resid")
   
   # write lm stats to file
-  write.table(lmCoeff.df,"intStand_lm.csv",row.names=F,quote=F,sep=",")
+  filePath<-paste("intStand_lm.csv",sep="")
+  write.table(lmCoeff.df,filePath,row.names=F,quote=F,sep=",")
   
   # std error, t val and p val
   lmCoeffStat<-standlm[[2]]$coefficients
-  write.table(lmCoeffStat,"intStand_coefficients.csv",row.names=T,quote=F,sep=",")
+  
+  filePath<-paste("intStand_coefficients.csv",sep="")
+  write.table(lmCoeffStat,filePath,row.names=T,quote=F,sep=",")
   
   # return data
   ret.list[[1]]<-standIsoR.list
