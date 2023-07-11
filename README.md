@@ -4,7 +4,9 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
 ### To install:
 
 >library(devtools)
->install_github("insilico/QCIRMS")  
+<p>
+>install_github("insilico/QCIRMS") 
+<p>
 >library(QCIRMS)
 
 ### Dependencies
