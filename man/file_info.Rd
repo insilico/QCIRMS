@@ -4,7 +4,7 @@
 \alias{file_info}
 \title{file_info: function that returns the isoreader file_info}
 \usage{
-file_info(files)
+file_info(files, path = NULL)
 }
 \arguments{
 \item{files}{}

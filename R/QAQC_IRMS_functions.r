@@ -225,25 +225,30 @@ removeFailedAnalysesDXF<-function(sepList,
     ## reference and sample peak checks
     failedRefDatIndex<-1
     for(i in seq(1,numCheck)){
+      sampRefCheck <- list()
+      
       # check reference peaks times
-      sampRefCheck<-reference_times_checkDXF(vend.df=sep.list[[i]],
-                                             expectedPeak.num=expRefPkNr,
-                                             diff.t=diff.t,
-                                             expectedStart=expRefStart,
-                                             expectedRt=expRefRt,
-                                             expectedEnd=expRefEnd,
-                                             verbose=verbose)
-      if(!sampRefCheck[[1]]){ # if sample failed ref time check
-        failedRefAnNum.vec<-c(failedRefAnNum.vec,sep.list[[i]]$Analysis[1])
-        failedRefID.vec<-c(failedRefID.vec,sep.list[[i]]$Identifier1[1])
-        # remove spaces in Identifier1, replace with underscores
-        if(sum(grepl(" ", failedRefID.vec))>0){
-          failedRefID.vec<-gsub(" ","_",failedRefID.vec)
-        }
-        # return failed reference peak data
-        failedRefDat.list[[failedRefDatIndex]]<-sampRefCheck[[2]]
-        failedRefDatIndex<-failedRefDatIndex+1
-      } else{ # perform the rest of the checks
+      #if(checkRefTimes==T){
+        sampRefCheck<-reference_times_checkDXF(vend.df=sep.list[[i]],
+                                               expectedPeak.num=expRefPkNr,
+                                               diff.t=diff.t,
+                                               expectedStart=expRefStart,
+                                               expectedRt=expRefRt,
+                                               expectedEnd=expRefEnd,
+                                               verbose=verbose)
+        if(!sampRefCheck[[1]]){ # if sample failed ref time check
+          failedRefAnNum.vec<-c(failedRefAnNum.vec,sep.list[[i]]$Analysis[1])
+          failedRefID.vec<-c(failedRefID.vec,sep.list[[i]]$Identifier1[1])
+          # remove spaces in Identifier1, replace with underscores
+          if(sum(grepl(" ", failedRefID.vec))>0){
+            failedRefID.vec<-gsub(" ","_",failedRefID.vec)
+          }
+          # return failed reference peak data
+          failedRefDat.list[[failedRefDatIndex]]<-sampRefCheck[[2]]
+          failedRefDatIndex<-failedRefDatIndex+1
+        } 
+      #}
+      else{ # perform the rest of the checks
         # add ref iso ratio check and intensity similarity check
         # need pknr.vec for iso_ratio_similarity
         refPkNr.vec<-sampRefCheck[[2]]$PkNr
@@ -514,7 +519,7 @@ separate_by_analysis_numDXF<-function(vend.df){
 
 # (5)
 #' ref_samp_intensity_check
-#' don't export yet
+#' @export
 ref_samp_intensity_check<-function(currFiltered,
                                    lengthEqual,
                                    dataName="data",
@@ -624,7 +629,7 @@ ref_samp_intensity_check<-function(currFiltered,
 
 # (6)
 #' intensity_similarityDXF
-#' don't export yet
+#' @export
 intensity_similarityDXF<-function(vendAmpl,
                                   amplName="Ampl44",
                                   peakNr.vec,
@@ -859,7 +864,7 @@ maxNumPeaksDXF<-function(vend.df,
 
 # (10)
 #' isoR_similarityDXF
-#' don't export yet
+#' @export
 isoR_similarityDXF<-function(vend.df,
                              peakNr.vec,
                              sdC.thresh=0.1,
@@ -920,7 +925,7 @@ isoR_similarityDXF<-function(vend.df,
 
 # (11)
 #' sample_peaks_processDXF
-#' don't export yet
+#' @export
 sample_peaks_processDXF<-function(refTimesOutput,
                                   vend.df,
                                   flushExpT=135,
@@ -1104,7 +1109,11 @@ vendor_info_all<-function(files){
 #' @examples 
 #' Usage example
 #' @export
-file_info<-function(files){
+file_info<-function(files, path=NULL){
+  if(!is.null(path)){
+    oldwd <- getwd()
+    setwd(path)
+  }
   num_files<-length(files)
   msdat<-iso_read_continuous_flow(files[1:num_files])
   file_info<-msdat %>%
@@ -1123,6 +1132,9 @@ file_info<-function(files){
   # convert from tibble to df
   file_info.df<-as.data.frame(file_info)
   file_info.df
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
   return(file_info.df)
 }
 
@@ -1648,8 +1660,8 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     # get title
     raw.dat<-raw.list[[i]]
     raw.title<-raw.dat$file_id[1]
-    raw.title<-paste("Index: ",i," Raw Data ",raw.title,sep="")
-    raw.title
+    #raw.title<-paste(" Raw Data ",raw.title,sep="")
+    #raw.title
     # plot
     if(dim(raw.dat)[1]>0){
       generic_raw_plot(raw.df=raw.dat,title=raw.title)
@@ -1930,6 +1942,7 @@ stand_lm<-function(acceptedMeas.df,dataName){
 #'   ret.list[[2]]: average values of deltas in the dataset
 #'   ret.list[[3]]: mean SD of deltas in the dataset
 #'   ret.list[[4]]: results of linear model using accepted and measured values
+#' @examples
 #' Usage example
 #' @export
 internal_standards_summary <- function(data.df, dataName, #outPath,
@@ -1992,4 +2005,105 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   ret.list[[3]]<-sd_d18O
   ret.list[[4]]<-standlm
   return(ret.list)
+}
+
+
+
+# (35)
+#' find_files_by_analysis_num
+#' @param path to dxf files to search
+#' @param analysisNum.vec vector of analysis numbers
+#' @return vector containing file names of dxf files for the specified analysis numbers
+#' @examples
+#' Usage example
+#' outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
+#' abiotic_path <- "./data/dxf_files/abiotic/"
+#' abio_outlier_dxf_files <- find_files_by_analysis_num(path = abiotic_path, analysisNum.vec = outlier_analysis.vec)
+#' @export
+find_files_by_analysis_num<-function(path,analysisNum.vec){
+  # get dxf files in a directory
+  oldwd<-getwd()
+  all_files <- all_dxf_files(path)
+  setwd(path)
+  iso.cf <- iso_read_continuous_flow(all_files)
+  #
+  fileInfo<-iso_get_file_info(iso.cf)
+  files<-fileInfo$file_id
+  AnalysisNums<-fileInfo$Analysis
+  #numFiles<-length(all_files)
+  numAnalyses<-length(AnalysisNums)
+  fileNames<-c()
+  for(i in seq(1,numAnalyses)){
+    if(analysisNum.vec[i] %in% AnalysisNums){
+      matchInd<-match(analysisNum.vec[i],AnalysisNums)
+      # get filename
+      match<-files[matchInd]
+      fileNames<-c(fileNames,match)
+    }
+  }
+  setwd(oldwd)
+  return(fileNames)
+}
+
+# (36)
+#' plot_by_analysis_num: function 
+#' @param path path to dxf files to search
+#' @param analysisNum.vec vector of analysis numbers to plot chromatograms of
+#' @examples
+#' Usage example
+#' outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
+#' abiotic_path <- "./data/dxf_files/abiotic/"
+#' plot_by_analysis_num(dxf_path = abiotic_path, analysisNum.vec = outlier_analysis.vec, write_pdf = T, plot_path = "./results/", pdf_name = "selected_spectra.pdf")
+#' @export
+plot_by_analysis_num <- function(dxf_path, analysisNum.vec, write_pdf = F, plot_path = NULL, pdf_name = NULL){
+  # get file names in directory and raw data for plotting
+  dxf_files <- find_files_by_analysis_num(path = dxf_path, analysisNum.vec = analysisNum.vec)
+  rawList <- raw_data_all(files = dxf_files, path = dxf_path)
+  generic_plot_all_raw(raw.list = rawList, path = plot_path, write_pdf = write_pdf, pdf_name = pdf_name)
+}
+
+
+
+# (37)
+#' plot_pass_fail_spectra: function that plots chromatogram results of QC 
+#' @param samps.dat sample data
+#' @param dataName dataset name
+#' @param plotsPath path for writing plots
+#' @param dxf_path path to dxf data
+#' @examples
+#' Usage example
+#' sampsFileName <- paste(dataName,"_samps_allChecks.csv",sep="")
+#' curr_samps <- read.csv(sampsFileName)
+#' plot_pass_fail_spectra(samps.dat=curr_samps, 
+#'                        dataName = curr_dir, 
+#'                        plotsPath = plotsPath, 
+#'                        dxf_path = dxf_path)
+#' @export
+plot_pass_fail_spectra <- function(samps.dat, dataName="data", plotsPath, dxf_path){
+  #oldwd <- getwd()
+  #setwd(dxf_path)
+  #if(is.null(plotsPath)){plotsPath=getwd()}
+  #if(is.null(dxf_path)){dxf_path=getwd()}
+  # get file names in directory 
+  fileNames<-all_dxf_files(path = dxf_path)
+  fileNames
+  # get passed file names
+  passedFiles <- unique(samps.dat$fileId) 
+  # get failed files 
+  passedInd <- which(fileNames %in% passedFiles)
+  failedFiles <- fileNames[-passedInd]
+  # get intensity vs time data for passed and failed experiments
+  passed_raw.list <- raw_data_all(passedFiles, path=dxf_path)
+  failed_raw.list <- raw_data_all(failedFiles, path=dxf_path)
+  length(passed_raw.list)
+  length(failed_raw.list)
+  # plot all raw data and write to pdfs
+  # passed QC - already in dir to write pdfs to from writing data
+  generic_plot_all_raw(raw.list=passed_raw.list, path=plotsPath,
+                       write_pdf=T,
+                       pdf_name=paste(dataName,"_passed_qc_spectra.pdf", sep="")) 
+  # failed QC
+  generic_plot_all_raw(failed_raw.list, path=plotsPath,
+                       write_pdf=T,
+                       pdf_name=paste(dataName,"_failed_qc_spectra.pdf",sep="")) 
 }

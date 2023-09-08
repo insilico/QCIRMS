@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{isoR_similarityDXF}
 \alias{isoR_similarityDXF}
-\title{isoR_similarityDXF
-don't export yet}
+\title{isoR_similarityDXF}
 \usage{
 isoR_similarityDXF(
   vend.df,
@@ -15,5 +14,4 @@ isoR_similarityDXF(
 }
 \description{
 isoR_similarityDXF
-don't export yet
 }

@@ -29,8 +29,10 @@ ret.list[\link{1}]: list of deltas by experiment
 ret.list[\link{2}]: average values of deltas in the dataset
 ret.list[\link{3}]: mean SD of deltas in the dataset
 ret.list[\link{4}]: results of linear model using accepted and measured values
-Usage example
 }
 \description{
 internal_standards_summary: function
+}
+\examples{
+Usage example
 }

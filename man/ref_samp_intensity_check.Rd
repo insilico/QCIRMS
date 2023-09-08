@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{ref_samp_intensity_check}
 \alias{ref_samp_intensity_check}
-\title{ref_samp_intensity_check
-don't export yet}
+\title{ref_samp_intensity_check}
 \usage{
 ref_samp_intensity_check(
   currFiltered,
@@ -17,5 +16,4 @@ ref_samp_intensity_check(
 }
 \description{
 ref_samp_intensity_check
-don't export yet
 }

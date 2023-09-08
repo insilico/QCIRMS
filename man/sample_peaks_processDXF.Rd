@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{sample_peaks_processDXF}
 \alias{sample_peaks_processDXF}
-\title{sample_peaks_processDXF
-don't export yet}
+\title{sample_peaks_processDXF}
 \usage{
 sample_peaks_processDXF(
   refTimesOutput,
@@ -17,5 +16,4 @@ sample_peaks_processDXF(
 }
 \description{
 sample_peaks_processDXF
-don't export yet
 }

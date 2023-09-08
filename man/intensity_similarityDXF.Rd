@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{intensity_similarityDXF}
 \alias{intensity_similarityDXF}
-\title{intensity_similarityDXF
-don't export yet}
+\title{intensity_similarityDXF}
 \usage{
 intensity_similarityDXF(
   vendAmpl,
@@ -15,5 +14,4 @@ intensity_similarityDXF(
 }
 \description{
 intensity_similarityDXF
-don't export yet
 }
