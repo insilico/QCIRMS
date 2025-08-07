@@ -1659,9 +1659,15 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
   for(i in seq(1,raw.length)){
     # get title
     raw.dat<-raw.list[[i]]
-    raw_an <- raw.dat$Analysis[1]
     raw.title<-raw.dat$file_id[1]
+    #read in dxf
+    iso.cf <- iso_read_continuous_flow(raw.title)
+    fileInfo<-iso_get_file_info(iso.cf)
+    raw_an <- fileInfo$Analysis
+    
+    
     #raw.title<-paste(" Raw Data ",raw.title,sep="")
+    
     full_title <- paste(raw.title, "\n",raw_an,sep="")    # plot
     if(dim(raw.dat)[1]>0){
       generic_raw_plot(raw.df=raw.dat,title=full_title)
