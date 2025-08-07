@@ -1659,12 +1659,12 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
   for(i in seq(1,raw.length)){
     # get title
     raw.dat<-raw.list[[i]]
+    raw_an <- raw.dat$Analysis[1]
     raw.title<-raw.dat$file_id[1]
     #raw.title<-paste(" Raw Data ",raw.title,sep="")
-    #raw.title
-    # plot
+    full_title <- paste(raw.title, "\n",raw_an,sep="")    # plot
     if(dim(raw.dat)[1]>0){
-      generic_raw_plot(raw.df=raw.dat,title=raw.title)
+      generic_raw_plot(raw.df=raw.dat,title=full_title)
     }
   }
   par(mfrow=c(1,1))
