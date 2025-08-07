@@ -1664,9 +1664,6 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     iso.cf <- iso_read_continuous_flow(raw.title)
     fileInfo<-iso_get_file_info(iso.cf)
     raw_an <- fileInfo$Analysis
-    print(raw_an)
-    cat("\n")
-    
     
     #raw.title<-paste(" Raw Data ",raw.title,sep="")
     
