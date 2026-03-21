@@ -1058,7 +1058,13 @@ all_dxf_files<-function(path=NULL){
     setwd(path)
   }
   
-  all_files<-list.files()
+  #all_files<-list.files()
+  
+  all_files <- list.files(
+    pattern = "\\.dxf$",
+    ignore.case = TRUE
+  )
+  
   dxfFiles<-c()
   for(i in seq(1:length(all_files))){
     currFile<-all_files[i] # get file name
