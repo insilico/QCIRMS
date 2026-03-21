@@ -1492,15 +1492,13 @@ raw_data_all<-function(files,path=NULL){
     setwd(path)
   }
   
+  # filter only .dxf files (case-insensitive)
+  files <- files[grepl("\\.dxf$", files, ignore.case = TRUE)]
+  
   raw.list<-list()
   for(i in seq(1,length(files))){
     raw.dat<-raw_data(files[i]) # function to get raw data from a single file
-    # if raw.dat is.null, skip and move to next file
-    if(is.null(raw.dat)){
-      print(paste("skipping file ",files[i],": not a .dxf file",sep=""))
-    } else{
     raw.list[[i]]<-raw.dat
-    }
   }
   # change back
   if(!is.null(path)){
