@@ -1713,15 +1713,16 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     pdf(file=pdf_name,width=6,height=4)
   }
   
-  raw.length<-length(raw.list)
+  #raw.length<-length(raw.list)
   par(mfrow=c(2,3))
-  for(i in seq(1,raw.length)){
+  for(i in seq_along(raw.list)){
     # get title
     raw.dat<-raw.list[[i]]
     raw.title<-raw.dat$file_id[1]
-    #read in dxf
-    iso.cf <- iso_read_continuous_flow(raw.title)
-    fileInfo<-iso_get_file_info(iso.cf)
+    #read in dxf, bam: don't read, already have data in raw.list
+    #iso.cf <- iso_read_continuous_flow(raw.title)
+    #fileInfo<-iso_get_file_info(iso.cf)
+    fileInfo<-iso_get_file_info(raw.dat)
     raw_an <- fileInfo$Analysis
     
     #raw.title<-paste(" Raw Data ",raw.title,sep="")
