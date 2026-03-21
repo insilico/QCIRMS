@@ -2,12 +2,10 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{analysisNumsEqualDXF}
 \alias{analysisNumsEqualDXF}
-\title{analysisNumsEqualDXF
-don't export yet}
+\title{analysisNumsEqualDXF}
 \usage{
 analysisNumsEqualDXF(refsList, sampsList)
 }
 \description{
 analysisNumsEqualDXF
-don't export yet
 }

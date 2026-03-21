@@ -18,8 +18,10 @@ vector containing file names of dxf files for the specified analysis numbers
 find_files_by_analysis_num
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
 abiotic_path <- "./data/dxf_files/abiotic/"
 abio_outlier_dxf_files <- find_files_by_analysis_num(path = abiotic_path, analysisNum.vec = outlier_analysis.vec)
+}
 }

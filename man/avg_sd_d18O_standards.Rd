@@ -23,22 +23,23 @@ avg_sd_d18O_standards(
 }
 \value{
 list of length 3 with the following elements:
-[\link{1}]: dataframes of d18O/16O averages and standard deviations for each set of files from input
-[\link{2}]: accepted and measured d18O/16O dataframe
-[\link{3}]: acceptable and calculated standard deviations for d18O/16O
+\verb{[[1]]}: dataframes of d18O/16O averages and standard deviations for each set of files from input
+\verb{[[2]]}: accepted and measured d18O/16O dataframe
+\verb{[[3]]}: acceptable and calculated standard deviations for d18O/16O
 }
 \description{
 avg_sd_d18O_standards: function to find d18O/16O averages and standard deviations for each set of files represented in input list
 }
 \examples{
-Usage Example
+\dontrun{
+# Usage Example
 L1_d18O.list<-d18O_samples_list(L1fileNames.vec)
 H1_d18O.list<-d18O_samples_list(H1fileNames.vec)
 LW_d18O.list<-d18O_samples_list(LWfileNames.vec)
 allStand_d18O.list<-list()
-allStand_d18O.list[[1]]<-L1_d18O.list
-allStand_d18O.list[[2]]<-H1_d18O.list
-allStand_d18O.list[[3]]<-LW_d18O.list
+allStand_d18O.list`[[1]]`<-L1_d18O.list
+allStand_d18O.list`[[2]]`<-H1_d18O.list
+allStand_d18O.list`[[3]]`<-LW_d18O.list
 AvgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
-dont export yet
+}
 }

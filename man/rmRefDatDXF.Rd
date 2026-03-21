@@ -2,12 +2,10 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{rmRefDatDXF}
 \alias{rmRefDatDXF}
-\title{rmRefDatDXF
-don't export yet}
+\title{rmRefDatDXF}
 \usage{
 rmRefDatDXF(procList)
 }
 \description{
 rmRefDatDXF
-don't export yet
 }

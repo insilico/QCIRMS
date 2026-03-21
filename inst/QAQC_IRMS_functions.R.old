@@ -6,8 +6,7 @@
 #' @param outputID string that identifies the dataset
 #' @param outPath path to results directory 
 #' @return list of IRMS analysis vendor table dataframes 
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example
 #' vend.list <- combineVendFileInfo(path = "./abiotic/", 
 #'                                  combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
@@ -20,7 +19,6 @@
 #'                                   "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
 #'                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
 #'                                  outputID = "abiotic")
-#' }
 #' @export
 combineVendFileInfo<-function(path,combColNames,outputID,outPath){
   oldwd<-getwd()
@@ -98,16 +96,15 @@ combineVendFileInfo<-function(path,combColNames,outputID,outPath){
 #' @param firstSampTint the accepted interval in seconds for the arrival of the first sample peak; default value = 15
 #' @param verbose whether to print information about failed analyses; default value = T
 #' @return list of eight elements containing information on samples that failed the checks and the data that passed
-#' `ret.list[[1]]`: info for samples that failed the peak number check
-#' `ret.list[[2]]`: info for samples that failed the reference peaks check
-#' `ret.list[[3]]`: info for samples that failed the reference isotope standard deviation check
-#' `ret.list[[4]]`: info for samples that failed the reference peak relative intensity check 
-#' `ret.list[[5]]`: info for samples that failed the sample peak processing steps 
-#' `ret.list[[6]]`: info for samples that failed the sample peak isotope standard deviation check
-#' `ret.list[[7]]`: list of reference peak data that passed the six checks above
-#' `ret.list[[8]]`: list of sample peak data that passed the six checks above
-#' @examples
-#' \dontrun{
+#' ret.list[[1]]: info for samples that failed the peak number check
+#' ret.list[[2]]: info for samples that failed the reference peaks check
+#' ret.list[[3]]: info for samples that failed the reference isotope standard deviation check
+#' ret.list[[4]]: info for samples that failed the reference peak relative intensity check 
+#' ret.list[[5]]: info for samples that failed the sample peak processing steps 
+#' ret.list[[6]]: info for samples that failed the sample peak isotope standard deviation check
+#' ret.list[[7]]: list of reference peak data that passed the six checks above
+#' ret.list[[8]]: list of sample peak data that passed the six checks above
+#' @examples 
 #' # Usage example
 #' processed.list <- removeFailedAnalysesDXF(sepList=combList,
 #'                                           expRef.df=expRef.df,
@@ -126,8 +123,7 @@ combineVendFileInfo<-function(path,combColNames,outputID,outPath){
 #'                                           firstSampExpT=275,
 #'                                           firstSampTint=15,
 #'                                           verbose=T)
-#' }
-# dont export yet
+#' dont export yet
 removeFailedAnalysesDXF<-function(sepList, 
                                   expRef.df, 
                                   maxPkNum=18, 
@@ -442,12 +438,10 @@ removeFailedAnalysesDXF<-function(sepList,
 #' writeFailStats: function that writes output from QA/QC to txt files
 #' @param processed.list output list from removeFailedAnalysesDXF
 #' @param outputID string to identify the current data
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example 
 #' writeFailStats(processed.list=processed.list,outputID="abiotic",writeDir=getwd())
-#' }
-# dont export yet
+#' dont export yet
 writeFailStats<-function(processed.list,outputID){
   #oldwd<-getwd()
   #setwd(writeDir)
@@ -481,11 +475,9 @@ writeFailStats<-function(processed.list,outputID){
 #' separate_by_analysis_numDXF
 #' @param vend.df dataframe of the vendor tables from a directory of dxf files
 #' @return list of vendor dataframes separated by experiment (analysis number)
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example
 #' separate_by_analysis_numDXF(vend.df=vend.df)
-#' }
 #' @export
 separate_by_analysis_numDXF<-function(vend.df){
   # make lists of data separated by analysis numbers
@@ -682,7 +674,7 @@ intensity_similarityDXF<-function(vendAmpl,
 
 # (7)
 #' threadRefSampListsToDF
-# don't export yet
+#' don't export yet
 threadRefSampListsToDF<-function(ref.list,sample.list){
   # thread lists into dataframes
   # need total number of elements in the lists
@@ -749,7 +741,7 @@ threadRefSampListsToDF<-function(ref.list,sample.list){
 
 # (8)
 #' reference_times_checkDXF
-# don't export yet
+#' don't export yet
 reference_times_checkDXF<-function(vend.df, 
                                    expectedPeak.num=5, 
                                    diff.t=10, 
@@ -825,7 +817,7 @@ reference_times_checkDXF<-function(vend.df,
 
 # (9)
 #' maxNumPeaksDXF
-# don't export yet
+#' don't export yet
 maxNumPeaksDXF<-function(vend.df,
                          maxExpectedPks=18,
                          expectedNonSampPks=7,
@@ -1045,11 +1037,9 @@ sample_peaks_processDXF<-function(refTimesOutput,
 #' all_dxf_files: function that returns the names of all dxf files in the current directory
 #' @param path string containing the path to the dxf files; if not specified function looks in the current wd
 #' @return vector containing the file names of all dxf files in the current directory
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example
 #' dxfFileNames <- all_dxf_files()
-#' }
 #' @export
 all_dxf_files<-function(path=NULL){
   # if path specified go there, else use curr wd
@@ -1080,10 +1070,8 @@ all_dxf_files<-function(path=NULL){
 #' @param file string that gives the name of the dxf file
 #' @return dataframe containing the vendor table informatino 
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' vend.df <- vendor_info("170526_Na2SO4 L_(1).dxf")
-#' }
 #' @export
 vendor_info<-function(file){
   msdat<-iso_read_continuous_flow(file)
@@ -1099,12 +1087,10 @@ vendor_info<-function(file){
 #' vendor_info_all: function that returns the vendor tables for a vector of dxf file names
 #' @param files: vector containing dxf file names as elements
 #' @return list of vendor table dataframes
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example
 #' dxf_files.vec <- all_dxf_files()
 #' vend.list <- vendor_info_all(dxf_files.vec)
-#' }
 #' @export 
 vendor_info_all<-function(files){
   vi.list<-list()
@@ -1118,12 +1104,10 @@ vendor_info_all<-function(files){
 
 # (15)
 #' file_info: function that returns the isoreader file_info 
-#' @param files vector containing dxf file names as elements
+#' @param files 
 #' @return dataframe of file info
-#' @examples
-#' \dontrun{
+#' @examples 
 #' # Usage example
-#' }
 #' @export
 file_info<-function(files, path=NULL){
   if(!is.null(path)){
@@ -1157,7 +1141,7 @@ file_info<-function(files, path=NULL){
 
 # (16)
 #' rmRefDatDXF
-# don't export yet
+#' don't export yet
 rmRefDatDXF<-function(procList){
   refsFiltered<-procList[[7]]
   sampsFiltered<-procList[[8]]
@@ -1175,7 +1159,7 @@ rmRefDatDXF<-function(procList){
 
 # (17)
 #' analysisNumsEqualDXF
-# don't export yet
+#' don't export yet
 analysisNumsEqualDXF<-function(refsList,sampsList){
   lenRefs<-length(refsList)
   if(lenRefs==0){
@@ -1219,7 +1203,7 @@ analysisNumsEqualDXF<-function(refsList,sampsList){
 
 # (18)
 #' removeRefAnalysisDXF
-# don't expot yet
+#' don't expot yet
 removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
                                sampProcFailedInd=5, sampIsoFailInd=6){
   retSR.list<-list()
@@ -1283,11 +1267,10 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param sdOsampIso.thresh maximum acceptable delta 18O for the sample peaks; default value = 0.2
 #' @param verbose whether to print information about the checks; default value = T
 #' @param outPath path to the directory where results will be written; default is the current wd
-#' @return list of two elements: `ret.list[[1]]` - reference peak data that passed QA/QC
-#'                               `ret.list[[2]]` - sample peak data that passed QA/QC
-#'                               `ret.list[[3]]` - results of the internal standards check and calibration
-#' @examples
-#' \dontrun{
+#' @return list of two elements: ret.list[[1]] - reference peak data that passed QA/QC
+#'                               ret.list[[2]] - sample peak data that passed QA/QC
+#'                               ret.list[[3]] - results of the internal standards check and calibration
+#' @examples 
 #' # Usage example
 #' qc_data.list <- QAQC_IRMS(unfilteredPath=dataPath, 
 #'                           expRef.df=expRef.df, 
@@ -1306,7 +1289,6 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #'                           sdOsampIso.thresh=0.2, # change for biotic=0.6
 #'                           outPath=resultsPath,
 #'                           verbose=T)
-#' }
 #' @export  
 QAQC_IRMS<-function(unfilteredPath, 
                     expRef.df, 
@@ -1426,10 +1408,8 @@ QAQC_IRMS<-function(unfilteredPath,
 #' @param filename character string of the name of the .dxf file of data or full path to the file
 #' @return summary table of file contents
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' read_summ("170525_NaHCO3 L + NaCl L_.dxf")
-#' }
 #' @export
 read_summary<-function(filename){
   msdat<-iso_read_continuous_flow(filename)
@@ -1445,10 +1425,8 @@ read_summary<-function(filename){
 #' @param path character string of the path to the dxf file
 #' @return dataframe containing the raw data in the .dxf file
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' raw_data(data_files)
-#' }
 #' @export
 raw_data<-function(file,path=NULL){
 
@@ -1457,11 +1435,6 @@ raw_data<-function(file,path=NULL){
     setwd(path)
   }
   
-  # return NULL if file is not a .dxf file
-  if(!grepl(".dxf", file)){
-    print("file is not a .dxf file")
-    return(NULL)
-  }
   msdat<-iso_read_continuous_flow(file)#files[1:num_files]
   raw_dat<- msdat %>% iso_get_raw_data()
   raw_dat.df<-as.data.frame(raw_dat)
@@ -1480,10 +1453,8 @@ raw_data<-function(file,path=NULL){
 #' @param path string of the path to the dxf files 
 #' @return a list containing raw data for each file
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' rawList<-raw_data_all(files)
-#' }
 #' @export
 raw_data_all<-function(files,path=NULL){
   
@@ -1494,12 +1465,7 @@ raw_data_all<-function(files,path=NULL){
   
   raw.list<-list()
   for(i in seq(1,length(files))){
-    raw.dat<-raw_data(files[i]) # function to get raw data from a single file
-    # if raw.dat is.null, skip and move to next file
-    if(is.null(raw.dat)){
-      print(paste("skipping file ",files[i],": not a .dxf file",sep=""))
-      next
-    }
+    raw.dat<-raw_data(files[i])
     raw.list[[i]]<-raw.dat
   }
   # change back
@@ -1516,10 +1482,8 @@ raw_data_all<-function(files,path=NULL){
 #' @param files vector containing character strings of .dxf file names
 #' @return dataframe of resistor info in the .dxf files
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' resistor_df(data_files)
-#' }
 #' @export
 resistor_data<-function(files){
   num_files<-length(files)
@@ -1534,10 +1498,8 @@ resistor_data<-function(files){
 #' @param files vector containing character strings of .dxf file names
 #' @return dataframe of reference values in the .dxf files
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' reference_values_ratio(data_files)
-#' }
 #' @export
 reference_values_ratio <- function(files){
   num_files<-length(files)
@@ -1553,10 +1515,8 @@ reference_values_ratio <- function(files){
 #' @param files vector containing character strings of .dxf file names
 #' @return dataframe of reference values in the .dxf files
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' reference_values_no_ratio(data_files)
-#' }
 #' @export
 reference_values_no_ratio<-function(files){
   num_files<-length(files)
@@ -1574,10 +1534,8 @@ reference_values_no_ratio<-function(files){
 #' @param mV.rawName character string of the name of intensity column to use (in raw.df)
 #' @return dataframe containing peak numbers and areas
 #' @examples
-#' \dontrun{
 #' # Usage Example
 #' pkAreas.df<-trap_area_allPks(raw.df=raw.df,vend.df=vi.df,mV.rawName="v44.mV")
-#' }
 #' @export
 trap_area_allPks<-function(raw.df, vend.df, mV.rawName){
   # get mass voltage index
@@ -1623,17 +1581,9 @@ trap_area_allPks<-function(raw.df, vend.df, mV.rawName){
 #' @param int.vec numeric vector of intensities from the raw data
 #' @return a numeric vector containing all the peak areas in V*s
 #' @examples
-#' \dontrun{
 #' # Usage Example
-#' start.v1 <- c(1, 4)
-#' end.v1 <- c(3, 6)
-#' time.s <- 1:6
-#' v44 <- c(0, 2, 0, 0, 3, 0)
-#' pk.Nrs <- c(1, 2)
-#' all_PA_trap(start.v1, end.v1, time.s, v44, pk.Nrs)
-#' }
-#' # dont export yet?
-#' @export
+#' all_PA_trap(start.v1,end.v1,time.s,v44,pk.Nrs)
+#' dont export yet
 all_PA_trap<-function(start.vec, end.vec, time.vec, int.vec, pk.Nrs){
   all_areas<-c()
   for(i in seq(1:length(start.vec))){
@@ -1655,10 +1605,8 @@ all_PA_trap<-function(start.vec, end.vec, time.vec, int.vec, pk.Nrs){
 #' @param int.vec intensity vector of intensity values for the peak
 #' @return peak area in V*s
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' peak_area_trap(start.v1[1],end.v1[1],time.s,v45)
-#' }
 #' @export
 peak_area_trap<-function(start.t, end.t, time.vec, int.vec){
   # get times for peak
@@ -1692,10 +1640,8 @@ peak_area_trap<-function(start.t, end.t, time.vec, int.vec){
 #' @param write_pdf logical; whether to write a pdf of the graphs
 #' @param pdf_name string of the pdf filename, use extension ".pdf"
 #' @examples
-#' \dontrun{
 #' # Usage Example
 #' generic_plot_all_raw(rawList)
-#' }
 #' @export
 generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_dxf.pdf"){
   
@@ -1747,10 +1693,8 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
 #' @param write_pdf logical; whether to write a pdf file of the plot
 #' @param pdf_name string of the pdf name; use the extension ".pdf"
 #' @examples
-#' \dontrun{
 #' # Usage Example
 #' generic_raw_plot(rawDat.df,"170525_NaHCO3 L + NaCl L_.dxf")
-#' }
 #' @export
 generic_raw_plot<-function(raw.df, title, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
   
@@ -1791,7 +1735,7 @@ generic_raw_plot<-function(raw.df, title, path=NULL, write_pdf=F, pdf_name="spec
 
 # (31)
 #' DXFvendListFromID1: function
-# don't export yet
+#' don't export yet
 DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
   vendRet.list<-list()
   listIndex<-1
@@ -1829,22 +1773,20 @@ DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
 #' @param standAcceptedVals.vec numeric vector containing the accepted values of the standards
 #' @param accStandRatioSD numeric vector containing the accepted standard deviation values for each of the standards (in the same order as names in standNames)
 #' @return list of length 3 with the following elements:
-#'          `[[1]]`: dataframes of d18O/16O averages and standard deviations for each set of files from input
-#'          `[[2]]`: accepted and measured d18O/16O dataframe
-#'          `[[3]]`: acceptable and calculated standard deviations for d18O/16O
+#'          [[1]]: dataframes of d18O/16O averages and standard deviations for each set of files from input
+#'          [[2]]: accepted and measured d18O/16O dataframe
+#'          [[3]]: acceptable and calculated standard deviations for d18O/16O
 #' @examples
-#' \dontrun{
 #' # Usage Example
 #' L1_d18O.list<-d18O_samples_list(L1fileNames.vec)
 #' H1_d18O.list<-d18O_samples_list(H1fileNames.vec)
 #' LW_d18O.list<-d18O_samples_list(LWfileNames.vec)
 #' allStand_d18O.list<-list()
-#' allStand_d18O.list`[[1]]`<-L1_d18O.list
-#' allStand_d18O.list`[[2]]`<-H1_d18O.list
-#' allStand_d18O.list`[[3]]`<-LW_d18O.list
+#' allStand_d18O.list[[1]]<-L1_d18O.list
+#' allStand_d18O.list[[2]]<-H1_d18O.list
+#' allStand_d18O.list[[3]]<-LW_d18O.list
 #' AvgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
-#' }
-# dont export yet
+#' dont export yet
 avg_sd_d18O_standards<-function(allStandards_d18O.list,
                                 standNames=c("L1","H1","LW"), isoName="d18O16O",
                                 standAcceptedVals.vec=c(-8.55,4.85,-3.85),
@@ -1967,13 +1909,11 @@ avg_sd_d18O_standards<-function(allStandards_d18O.list,
 #' @param acceptedMeas.df dataframe with accepted and measured values for internal standards (rownames are thestandard names, colnames=c(accepted,measured))
 #' @return list whose first element is the lm model and the second is the model summary
 #' @examples
-#' \dontrun{
 #' # Usage Example
 #' avgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
-#' standDat<-testAvg_d18O`[[2]]`
+#' standDat<-testAvg_d18O[[2]]
 #' stand.lm<-stand_lm(standDat)
-#' }
-# dont export yet
+#' dont export yet
 stand_lm<-function(acceptedMeas.df,dataName){
   ret.list<-list()
   # linear regression
@@ -2003,14 +1943,12 @@ stand_lm<-function(acceptedMeas.df,dataName){
 #' @param standAcceptedVals.vec vector of internal standard delta values
 #' @param standAcceptedSD.vec vector of acceptable internal standard SD in delta values
 #' @return list of four elements:
-#'   `ret.list[[1]]`: list of deltas by experiment
-#'   `ret.list[[2]]`: average values of deltas in the dataset
-#'   `ret.list[[3]]`: mean SD of deltas in the dataset
-#'   `ret.list[[4]]`: results of linear model using accepted and measured values
+#'   ret.list[[1]]: list of deltas by experiment
+#'   ret.list[[2]]: average values of deltas in the dataset
+#'   ret.list[[3]]: mean SD of deltas in the dataset
+#'   ret.list[[4]]: results of linear model using accepted and measured values
 #' @examples
-#' \dontrun{
 #' # Usage example
-#' }
 #' @export
 internal_standards_summary <- function(data.df, dataName, #outPath,
                                        standName.vec=c("L1","H1","LW"),
@@ -2082,12 +2020,10 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
 #' @param analysisNum.vec vector of analysis numbers
 #' @return vector containing file names of dxf files for the specified analysis numbers
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
 #' abiotic_path <- "./data/dxf_files/abiotic/"
 #' abio_outlier_dxf_files <- find_files_by_analysis_num(path = abiotic_path, analysisNum.vec = outlier_analysis.vec)
-#' }
 #' @export
 find_files_by_analysis_num<-function(path,analysisNum.vec){
   # get dxf files in a directory
@@ -2119,12 +2055,10 @@ find_files_by_analysis_num<-function(path,analysisNum.vec){
 #' @param path path to dxf files to search
 #' @param analysisNum.vec vector of analysis numbers to plot chromatograms of
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
 #' abiotic_path <- "./data/dxf_files/abiotic/"
 #' plot_by_analysis_num(dxf_path = abiotic_path, analysisNum.vec = outlier_analysis.vec, write_pdf = T, plot_path = "./results/", pdf_name = "selected_spectra.pdf")
-#' }
 #' @export
 plot_by_analysis_num <- function(dxf_path, analysisNum.vec, write_pdf = F, plot_path = NULL, pdf_name = NULL){
   # get file names in directory and raw data for plotting
@@ -2142,7 +2076,6 @@ plot_by_analysis_num <- function(dxf_path, analysisNum.vec, write_pdf = F, plot_
 #' @param plotsPath path for writing plots
 #' @param dxf_path path to dxf data
 #' @examples
-#' \dontrun{
 #' # Usage example
 #' sampsFileName <- paste(dataName,"_samps_allChecks.csv",sep="")
 #' curr_samps <- read.csv(sampsFileName)
@@ -2150,7 +2083,6 @@ plot_by_analysis_num <- function(dxf_path, analysisNum.vec, write_pdf = F, plot_
 #'                        dataName = curr_dir, 
 #'                        plotsPath = plotsPath, 
 #'                        dxf_path = dxf_path)
-#' }
 #' @export
 plot_pass_fail_spectra <- function(samps.dat, dataName="data", plotsPath, dxf_path){
   #oldwd <- getwd()

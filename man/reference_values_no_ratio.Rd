@@ -16,6 +16,8 @@ dataframe of reference values in the .dxf files
 reference_values_no_ratio: get isotopic reference values without ratios
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 reference_values_no_ratio(data_files)
+}
 }

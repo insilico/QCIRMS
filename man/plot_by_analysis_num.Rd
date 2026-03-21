@@ -21,8 +21,10 @@ plot_by_analysis_num(
 plot_by_analysis_num: function
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 outlier_analysis.vec <- outlier_test_meta.dat$Analysis 
 abiotic_path <- "./data/dxf_files/abiotic/"
 plot_by_analysis_num(dxf_path = abiotic_path, analysisNum.vec = outlier_analysis.vec, write_pdf = T, plot_path = "./results/", pdf_name = "selected_spectra.pdf")
+}
 }

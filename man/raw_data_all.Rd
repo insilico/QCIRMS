@@ -18,6 +18,8 @@ a list containing raw data for each file
 raw_data_all: function to get all raw data from multiple files
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 rawList<-raw_data_all(files)
+}
 }

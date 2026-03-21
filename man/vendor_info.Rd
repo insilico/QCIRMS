@@ -16,6 +16,8 @@ dataframe containing the vendor table informatino
 vendor_info: function that returns the vendor table for a given dxf file
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 vend.df <- vendor_info("170526_Na2SO4 L_(1).dxf")
+}
 }

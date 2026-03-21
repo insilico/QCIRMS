@@ -7,7 +7,7 @@
 file_info(files, path = NULL)
 }
 \arguments{
-\item{files}{}
+\item{files}{vector containing dxf file names as elements}
 }
 \value{
 dataframe of file info
@@ -16,5 +16,7 @@ dataframe of file info
 file_info: function that returns the isoreader file_info
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
+}
 }

@@ -2,12 +2,10 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{threadRefSampListsToDF}
 \alias{threadRefSampListsToDF}
-\title{threadRefSampListsToDF
-don't export yet}
+\title{threadRefSampListsToDF}
 \usage{
 threadRefSampListsToDF(ref.list, sample.list)
 }
 \description{
 threadRefSampListsToDF
-don't export yet
 }

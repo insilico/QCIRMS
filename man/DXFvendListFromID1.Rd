@@ -2,12 +2,10 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{DXFvendListFromID1}
 \alias{DXFvendListFromID1}
-\title{DXFvendListFromID1: function
-don't export yet}
+\title{DXFvendListFromID1: function}
 \usage{
 DXFvendListFromID1(all.df, standName.vec = c("L1", "H1", "LW"))
 }
 \description{
 DXFvendListFromID1: function
-don't export yet
 }

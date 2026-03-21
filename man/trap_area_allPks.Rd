@@ -20,6 +20,8 @@ dataframe containing peak numbers and areas
 trap_area_allPks: function to calculate area of all peaks in an experiment via trapz (wrapper function for all_PA_trap())
 }
 \examples{
-Usage Example
+\dontrun{
+# Usage Example
 pkAreas.df<-trap_area_allPks(raw.df=raw.df,vend.df=vi.df,mV.rawName="v44.mV")
+}
 }

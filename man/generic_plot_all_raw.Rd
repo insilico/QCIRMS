@@ -24,6 +24,8 @@ generic_plot_all_raw(
 generic_plot_all_raw: function that plots all the raw data in a list containing raw data from different experiments
 }
 \examples{
-Usage Example
+\dontrun{
+# Usage Example
 generic_plot_all_raw(rawList)
+}
 }

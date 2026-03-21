@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{maxNumPeaksDXF}
 \alias{maxNumPeaksDXF}
-\title{maxNumPeaksDXF
-don't export yet}
+\title{maxNumPeaksDXF}
 \usage{
 maxNumPeaksDXF(
   vend.df,
@@ -15,5 +14,4 @@ maxNumPeaksDXF(
 }
 \description{
 maxNumPeaksDXF
-don't export yet
 }

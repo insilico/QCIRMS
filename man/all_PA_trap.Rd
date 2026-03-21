@@ -22,7 +22,14 @@ a numeric vector containing all the peak areas in V*s
 all_PA_trap: function to calculate all peak areas using the integration trapezoidal rule (via trapz)
 }
 \examples{
-Usage Example
-all_PA_trap(start.v1,end.v1,time.s,v44,pk.Nrs)
-dont export yet
+\dontrun{
+# Usage Example
+start.v1 <- c(1, 4)
+end.v1 <- c(3, 6)
+time.s <- 1:6
+v44 <- c(0, 2, 0, 0, 3, 0)
+pk.Nrs <- c(1, 2)
+all_PA_trap(start.v1, end.v1, time.s, v44, pk.Nrs)
+}
+# dont export yet?
 }

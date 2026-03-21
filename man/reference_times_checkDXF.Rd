@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{reference_times_checkDXF}
 \alias{reference_times_checkDXF}
-\title{reference_times_checkDXF
-don't export yet}
+\title{reference_times_checkDXF}
 \usage{
 reference_times_checkDXF(
   vend.df,
@@ -17,5 +16,4 @@ reference_times_checkDXF(
 }
 \description{
 reference_times_checkDXF
-don't export yet
 }

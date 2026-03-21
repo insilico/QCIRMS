@@ -61,20 +61,21 @@ removeFailedAnalysesDXF(
 }
 \value{
 list of eight elements containing information on samples that failed the checks and the data that passed
-ret.list[\link{1}]: info for samples that failed the peak number check
-ret.list[\link{2}]: info for samples that failed the reference peaks check
-ret.list[\link{3}]: info for samples that failed the reference isotope standard deviation check
-ret.list[\link{4}]: info for samples that failed the reference peak relative intensity check
-ret.list[\link{5}]: info for samples that failed the sample peak processing steps
-ret.list[\link{6}]: info for samples that failed the sample peak isotope standard deviation check
-ret.list[\link{7}]: list of reference peak data that passed the six checks above
-ret.list[\link{8}]: list of sample peak data that passed the six checks above
+\code{ret.list[[1]]}: info for samples that failed the peak number check
+\code{ret.list[[2]]}: info for samples that failed the reference peaks check
+\code{ret.list[[3]]}: info for samples that failed the reference isotope standard deviation check
+\code{ret.list[[4]]}: info for samples that failed the reference peak relative intensity check
+\code{ret.list[[5]]}: info for samples that failed the sample peak processing steps
+\code{ret.list[[6]]}: info for samples that failed the sample peak isotope standard deviation check
+\code{ret.list[[7]]}: list of reference peak data that passed the six checks above
+\code{ret.list[[8]]}: list of sample peak data that passed the six checks above
 }
 \description{
 removeFailedAnalysesDXF: function that removes experiments that fail QA/QC from the processing pipeline
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 processed.list <- removeFailedAnalysesDXF(sepList=combList,
                                           expRef.df=expRef.df,
                                           maxPkNum=18,
@@ -92,5 +93,5 @@ processed.list <- removeFailedAnalysesDXF(sepList=combList,
                                           firstSampExpT=275,
                                           firstSampTint=15,
                                           verbose=T)
-dont export yet
+}
 }

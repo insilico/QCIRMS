@@ -16,7 +16,9 @@ list of vendor table dataframes
 vendor_info_all: function that returns the vendor tables for a vector of dxf file names
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 dxf_files.vec <- all_dxf_files()
 vend.list <- vendor_info_all(dxf_files.vec)
+}
 }

@@ -16,6 +16,8 @@ vector containing the file names of all dxf files in the current directory
 all_dxf_files: function that returns the names of all dxf files in the current directory
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 dxfFileNames <- all_dxf_files()
+}
 }

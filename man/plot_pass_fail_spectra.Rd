@@ -19,11 +19,13 @@ plot_pass_fail_spectra(samps.dat, dataName = "data", plotsPath, dxf_path)
 plot_pass_fail_spectra: function that plots chromatogram results of QC
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 sampsFileName <- paste(dataName,"_samps_allChecks.csv",sep="")
 curr_samps <- read.csv(sampsFileName)
 plot_pass_fail_spectra(samps.dat=curr_samps, 
                        dataName = curr_dir, 
                        plotsPath = plotsPath, 
                        dxf_path = dxf_path)
+}
 }

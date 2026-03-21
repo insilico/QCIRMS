@@ -16,6 +16,8 @@ dataframe of resistor info in the .dxf files
 resistor_data: get resistor info for .dxf files as a dataframe
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 resistor_df(data_files)
+}
 }

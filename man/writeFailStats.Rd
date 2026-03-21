@@ -15,7 +15,8 @@ writeFailStats(processed.list, outputID)
 writeFailStats: function that writes output from QA/QC to txt files
 }
 \examples{
-Usage example 
+\dontrun{
+# Usage example 
 writeFailStats(processed.list=processed.list,outputID="abiotic",writeDir=getwd())
-dont export yet
+}
 }

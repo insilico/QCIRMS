@@ -16,6 +16,8 @@ list of vendor dataframes separated by experiment (analysis number)
 separate_by_analysis_numDXF
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 separate_by_analysis_numDXF(vend.df=vend.df)
+}
 }

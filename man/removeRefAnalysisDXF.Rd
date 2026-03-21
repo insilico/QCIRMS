@@ -2,8 +2,7 @@
 % Please edit documentation in R/QAQC_IRMS_functions.R
 \name{removeRefAnalysisDXF}
 \alias{removeRefAnalysisDXF}
-\title{removeRefAnalysisDXF
-don't expot yet}
+\title{removeRefAnalysisDXF}
 \usage{
 removeRefAnalysisDXF(
   filtered.list,
@@ -15,5 +14,4 @@ removeRefAnalysisDXF(
 }
 \description{
 removeRefAnalysisDXF
-don't expot yet
 }

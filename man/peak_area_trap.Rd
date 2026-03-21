@@ -22,6 +22,8 @@ peak area in V*s
 peak_area_trap: function that returns the area of a peak using the integration trapezoidal rule via trapz
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 peak_area_trap(start.v1[1],end.v1[1],time.s,v45)
+}
 }

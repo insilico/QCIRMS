@@ -16,9 +16,10 @@ list whose first element is the lm model and the second is the model summary
 stand_lm: function to perform the linear regression for the internal standards quality check and plot the results
 }
 \examples{
-Usage Example
+\dontrun{
+# Usage Example
 avgSD_d18O<-avg_sd_d18O_standards(allStand_d18O.list)
-standDat<-testAvg_d18O[[2]]
+standDat<-testAvg_d18O`[[2]]`
 stand.lm<-stand_lm(standDat)
-dont export yet
+}
 }

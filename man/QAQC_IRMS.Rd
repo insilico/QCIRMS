@@ -89,15 +89,16 @@ outputID = "abiotic")}
 \item{verbose}{whether to print information about the checks; default value = T}
 }
 \value{
-list of two elements: ret.list[\link{1}] - reference peak data that passed QA/QC
-ret.list[\link{2}] - sample peak data that passed QA/QC
-ret.list[\link{3}] - results of the internal standards check and calibration
+list of two elements: \code{ret.list[[1]]} - reference peak data that passed QA/QC
+\code{ret.list[[2]]} - sample peak data that passed QA/QC
+\code{ret.list[[3]]} - results of the internal standards check and calibration
 }
 \description{
 QAQC_IRMS: wrapper function for QA/QC that writes and returns quality IRMS data and QC check diagnostics
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 qc_data.list <- QAQC_IRMS(unfilteredPath=dataPath, 
                           expRef.df=expRef.df, 
                           checkIntStand=T, 
@@ -115,4 +116,5 @@ qc_data.list <- QAQC_IRMS(unfilteredPath=dataPath,
                           sdOsampIso.thresh=0.2, # change for biotic=0.6
                           outPath=resultsPath,
                           verbose=T)
+}
 }

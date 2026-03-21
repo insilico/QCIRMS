@@ -16,6 +16,8 @@ summary table of file contents
 read_summary: read and print a summary of mass spec data from a .dxf file
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 read_summ("170525_NaHCO3 L + NaCl L_.dxf")
+}
 }

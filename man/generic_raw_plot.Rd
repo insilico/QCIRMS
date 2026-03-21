@@ -27,6 +27,8 @@ generic_raw_plot(
 generic_raw_plot: function to plot raw data using generic plot
 }
 \examples{
-Usage Example
+\dontrun{
+# Usage Example
 generic_raw_plot(rawDat.df,"170525_NaHCO3 L + NaCl L_.dxf")
+}
 }

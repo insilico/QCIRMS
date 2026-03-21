@@ -22,7 +22,8 @@ list of IRMS analysis vendor table dataframes
 combineVendFileInfo: function that processes vendor data for a directory of dxf files
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 vend.list <- combineVendFileInfo(path = "./abiotic/", 
                                  combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
@@ -34,4 +35,5 @@ vend.list <- combineVendFileInfo(path = "./abiotic/",
                                   "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
                                  outputID = "abiotic")
+}
 }

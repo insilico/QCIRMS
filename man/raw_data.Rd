@@ -18,6 +18,8 @@ dataframe containing the raw data in the .dxf file
 raw_data: get the raw data from the specified .dxf file as a dataframe
 }
 \examples{
-Usage example
+\dontrun{
+# Usage example
 raw_data(data_files)
+}
 }
