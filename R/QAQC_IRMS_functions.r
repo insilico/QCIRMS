@@ -1498,9 +1498,9 @@ raw_data_all<-function(files,path=NULL){
     # if raw.dat is.null, skip and move to next file
     if(is.null(raw.dat)){
       print(paste("skipping file ",files[i],": not a .dxf file",sep=""))
-      next
-    }
+    } else{
     raw.list[[i]]<-raw.dat
+    }
   }
   # change back
   if(!is.null(path)){
