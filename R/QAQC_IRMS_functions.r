@@ -1460,12 +1460,12 @@ raw_data<-function(file,path=NULL){
   # return NULL if file is not a .dxf file
   if(!grepl(".dxf", file)){
     print("file is not a .dxf file")
-    return(NULL)
-  }
+    raw_dat.df<-NULL
+  } else{
   msdat<-iso_read_continuous_flow(file)#files[1:num_files]
   raw_dat<- msdat %>% iso_get_raw_data()
   raw_dat.df<-as.data.frame(raw_dat)
-  
+  }
   # change back
   if(!is.null(path)){
     setwd(oldwd)
