@@ -4,6 +4,14 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
 ### To install:
 
 ```
+install.packages("pak")
+pak::pak("insilico/QCIRMS")
+```
+Back up options:
+```
+install.packages("remotes")
+remotes::install_github("insilico/QCIRMS")
+
 install.packages(c('dplyr', 'pracma'))
 install.packages("devtools")
 library(devtools)
@@ -18,7 +26,6 @@ library(QCIRMS)
 
 ```
 # example dxf data file provided in package: inst/extdata
-library(isoreader)
 library(QCIRMS)
 dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
 dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")

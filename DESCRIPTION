@@ -1,15 +1,19 @@
 Package: QCIRMS
 Title: Quality Control for Isotope Ratio Mass Spectrometry Data
 Version: 0.0.0.9000
-Authors@R: c(person("Lily", "Clough", email="lily-clough@utulsa.edu", 
-                                      role=c("aut","cre")),
-             person("Brett", "McKinney", email="brett-mckinney@utulsa.edu", 
-                                         role=c("aut"))
-             )
-Imports: dplyr, pracma, isoreader
+Authors@R: c(
+    person("Lily", "Clough", email = "lily-clough@utulsa.edu", role = c("aut", "cre")),
+    person("Brett", "McKinney", email = "brett-mckinney@utulsa.edu", role = c("aut"))
+    )
+Description: Tools for QA/QC of isotope ratio mass spectrometry (IRMS) data,
+    including filtering, diagnostics, and visualization of DXF files.
 License: MIT + file LICENSE
-Remotes: isoverse/isoreader
-Description: QCIRMS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports:
+    dplyr,
+    pracma,
+    isoreader
+Remotes:
+    isoverse/isoreader
