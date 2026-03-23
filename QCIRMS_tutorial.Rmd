@@ -1,0 +1,231 @@
+---
+title: "QCIRMS Tutorial: QA/QC Workflow for Continuous-Flow IRMS DXF Files"
+author:
+  - "Brett McKinney"
+  - "Lily Clough"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+    df_print: paged
+params:
+  data_dir: !r NULL
+  ref_time_file: !r NULL
+  results_dir: !r NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 7,
+  fig.height = 4.5,
+  fig.align = "center"
+)
+```
+
+# Overview
+
+This tutorial walks through a practical QCIRMS workflow for continuous-flow isotope ratio
+mass spectrometry (IRMS) data stored in Thermo `.dxf` files. It is adapted from the
+package pipeline script and reorganized as a reproducible R Markdown analysis.
+
+The workflow has four parts:
+
+1. install and load dependencies;
+2. inspect a single `.dxf` file;
+3. process a directory of files and generate chromatogram plots;
+4. run the `QAQC_IRMS()` directory-level QA/QC workflow.
+
+# Installation
+
+QCIRMS currently depends on `isoreader`, which is installed from GitHub.
+
+```{r install, eval=FALSE}
+install.packages(c("dplyr", "pracma"))
+install.packages("pak")
+
+pak::pak("isoverse/isoreader")
+pak::pak("insilico/QCIRMS")
+```
+
+# Load packages
+
+```{r libraries}
+library(QCIRMS)
+library(isoreader)
+library(dplyr)
+library(pracma)
+```
+
+# Example 1: Inspect one packaged DXF file
+
+QCIRMS ships with a small example DXF file in `inst/extdata`.
+
+```{r single-file-setup}
+dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
+file_path <- system.file("extdata", "dxf_files", "abiotic", dxf_file, package = "QCIRMS")
+
+file_path
+```
+
+## Read the file summary
+
+```{r read-summary}
+file_summ <- read_summary(file_path)
+str(file_summ, max.level = 1)
+```
+
+## Vendor peak table
+
+```{r vendor-info}
+vend_df <- vendor_info(file_path)
+dplyr::glimpse(vend_df)
+head(vend_df[, 1:min(10, ncol(vend_df))])
+```
+
+## Raw chromatogram data
+
+```{r raw-data}
+raw_df <- raw_data(file_path)
+dplyr::glimpse(raw_df)
+head(raw_df)
+```
+
+## Reference values
+
+```{r reference-values}
+stand_ratio_df <- reference_values_ratio(file_path)
+stand_no_ratio_df <- reference_values_no_ratio(file_path)
+
+head(stand_ratio_df)
+head(stand_no_ratio_df)
+```
+
+## Plot one chromatogram
+
+```{r one-plot}
+generic_raw_plot(
+  raw.df = raw_df,
+  title = dxf_file
+)
+```
+
+# Example 2: Batch processing for a directory of DXF files
+
+For a local experiment directory, set `data_dir` to a folder containing `.dxf` files.
+If you knit this document without parameters, the chunk below is skipped.
+
+```{r batch-setup}
+DATA_PATH <- params$data_dir
+RESULTS_PATH <- params$results_dir
+
+if (is.null(RESULTS_PATH) && !is.null(DATA_PATH)) {
+  RESULTS_PATH <- file.path(DATA_PATH, "QCresults")
+  dir.create(RESULTS_PATH, recursive = TRUE, showWarnings = FALSE)
+}
+```
+
+```{r batch-processing, eval=!is.null(params$data_dir)}
+file_names <- all_dxf_files(path = DATA_PATH)
+length(file_names)
+head(file_names)
+
+raw_list <- raw_data_all(file_names, path = DATA_PATH)
+length(raw_list)
+```
+
+```{r batch-plotting, eval=!is.null(params$data_dir)}
+generic_plot_all_raw(
+  raw.list = raw_list,
+  path = RESULTS_PATH,
+  write_pdf = TRUE,
+  pdf_name = "all_dxf.pdf"
+)
+```
+
+# Example 3: Directory-level QA/QC with expected reference times
+
+To run the full pipeline you need:
+
+- a directory of `.dxf` files;
+- a table of expected reference-peak times, for example
+  `referencePeaks_expectedTimes.txt`;
+- an output directory for results.
+
+```{r qaqc-inputs}
+REF_TIME_FILE <- params$ref_time_file
+
+if (!is.null(REF_TIME_FILE)) {
+  expRef_df <- read.table(REF_TIME_FILE, header = TRUE)
+  expRef_df
+}
+```
+
+## Run `QAQC_IRMS()`
+
+```{r run-qaqc, eval=!is.null(params$data_dir) && !is.null(params$ref_time_file)}
+start_time <- Sys.time()
+
+curr_filtered <- QAQC_IRMS(
+  unfilteredPath = DATA_PATH,
+  expRef.df = expRef_df,
+  checkIntStand = TRUE,
+  internalStandID = c("L1", "H1", "LW"),
+  dataName = basename(DATA_PATH),
+  maxPkNum = 18,
+  expectedNonSampPks = 7,
+  sdCrefIso.thresh = 0.1,
+  sdOrefIso.thresh = 0.1,
+  checkRelDiffIntensity = TRUE,
+  refSamp_relDiffInt.thresh = 0.75,
+  amplName = "Ampl44",
+  ref_relDiffInt.thresh = 0.1,
+  sdCsampIso.thresh = 0.3,
+  sdOsampIso.thresh = 0.2,
+  outPath = RESULTS_PATH,
+  verbose = TRUE
+)
+
+elapsed <- Sys.time() - start_time
+elapsed
+```
+
+## Extract QA/QC outputs
+
+```{r qaqc-outputs, eval=!is.null(params$data_dir) && !is.null(params$ref_time_file)}
+refs_dat <- curr_filtered[[1]]
+samps_dat <- curr_filtered[[2]]
+
+dim(refs_dat)
+dim(samps_dat)
+
+head(refs_dat)
+head(samps_dat)
+```
+
+## Internal standards (optional)
+
+```{r internal-standards, eval=!is.null(params$data_dir) && !is.null(params$ref_time_file)}
+int_stand_list <- curr_filtered[[3]]
+
+length(int_stand_list)
+str(int_stand_list, max.level = 1)
+```
+
+# Suggested next steps
+
+- Add this tutorial as a package vignette under `vignettes/`.
+- Replace any hard-coded paths with `params` or `here::here()`.
+- Keep only small demonstration files in `inst/extdata/`.
+- Store larger local data outside the installed package and document the expected directory structure.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
