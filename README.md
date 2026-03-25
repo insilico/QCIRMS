@@ -5,6 +5,7 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
 
 ```
 install.packages("pak")
+library(pak)
 pak::pak("insilico/QCIRMS")
 ```
 Back up options:
