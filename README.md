@@ -8,18 +8,6 @@ install.packages("pak")
 library(pak)
 pak::pak("insilico/QCIRMS")
 ```
-Back up options:
-```
-install.packages("remotes")
-remotes::install_github("insilico/QCIRMS")
-
-install.packages(c('dplyr', 'pracma'))
-install.packages("devtools")
-library(devtools)
-install_github("isoverse/isoreader")
-install_github("insilico/QCIRMS") 
-library(QCIRMS)
-```
 
 ### Dependencies
 

@@ -1503,7 +1503,6 @@ raw_data_all<-function(files,path=NULL){
   
   raw.list<-list()
   for(i in seq(1,length(files))){
-    cat("getting raw data for file ", i, " of ", length(files), ": ", files[i], "\n", sep="")
     raw.dat<-raw_data(files[i]) # function to get raw data from a single file
     raw.list[[i]]<-raw.dat
   }
@@ -1511,10 +1510,8 @@ raw_data_all<-function(files,path=NULL){
   if(!is.null(path)){
     setwd(oldwd)
   }
-  
   return(raw.list)
 }
-
 
 # (23)
 #' resistor_data: get resistor info for .dxf files as a dataframe
