@@ -508,18 +508,24 @@ separate_by_analysis_numDXF<-function(vend.df){
       break
     }
     # check if the analysis numbers are the same
-    if(currAnalysis==prevAnalysis){
-      analysisSetInd.vec<-c(analysisSetInd.vec,i-1)
-    } else{ # different analysis numbers
-      #print("Reached end of analysis set")
-      # add i-1 to vec
-      analysisSetInd.vec<-c(analysisSetInd.vec,i-1)
-      # add analysis set to list
-      analysisData.list[[uniqueAnalysisInd]]<-vend.df[analysisSetInd.vec,]
-      # reset analysis index vector and set next list index
-      analysisSetInd.vec<-c()
-      uniqueAnalysisInd<-uniqueAnalysisInd+1
-    }
+    #print(length(currAnalysis))
+    if(length(currAnalysis>0)){
+      if(currAnalysis==prevAnalysis){
+        analysisSetInd.vec<-c(analysisSetInd.vec,i-1)
+      }else{ # different analysis numbers
+        #print("Reached end of analysis set")
+        # add i-1 to vec
+        analysisSetInd.vec<-c(analysisSetInd.vec,i-1)
+        # add analysis set to list
+        analysisData.list[[uniqueAnalysisInd]]<-vend.df[analysisSetInd.vec,]
+        # reset analysis index vector and set next list index
+        analysisSetInd.vec<-c()
+        uniqueAnalysisInd<-uniqueAnalysisInd+1
+      }
+    }else{
+      print("warning: no data available for processing")
+      return(NA)
+      }
   }
   return(analysisData.list)
 }
@@ -1811,6 +1817,13 @@ DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
   listIndex<-1
   # separate into different experiments using analysis numbers
   sepList<-separate_by_analysis_numDXF(all.df)
+  #print(length(sepList))
+  if(length(sepList)<=1){
+    if(is.na(sepList)){
+      #print("no data available")
+      return(NA)
+    }
+  }
   # look just for identifier1 that are in standName.vec
   lenList<-length(sepList)
   for(i in seq(1,lenList)){
@@ -1908,6 +1921,12 @@ avg_sd_d18O_standards<-function(allStandards_d18O.list,
   fileColNames<-c(paste("avg_",isoName,sep=""),paste("sd_",isoName,sep=""))
   colnames(d18OFile.df)<-c("Analysis","standard",fileColNames)
   
+  #print(d18O.list)
+  if(length(d18O.list)<=1){
+    if(is.na(d18O.list)){
+      return(NA)
+    }
+  }
   for(i in seq(1,list.len)){
       # get sample peaks d18O/16O for one file
       dlist.df<-d18O.list[[i]]
@@ -2033,15 +2052,30 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   ret.list<-list()
   
   standIsoR.list<-DXFvendListFromID1(all.df=data.df,standName.vec=standName.vec)
-  
-  standAvgSD<-avg_sd_d18O_standards(allStandards_d18O.list = standIsoR.list,
+  #print(length(standIsoR.list))
+  if(length(standIsoR.list)>0){
+    standAvgSD<-avg_sd_d18O_standards(allStandards_d18O.list = standIsoR.list,
                                     standNames=standName.vec,
                                     standAcceptedVals.vec=standAcceptedVals.vec,
                                     accStandRatioSD=standAcceptedSD.vec)
-  # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
-  standAnalyses.df<-standAvgSD[[1]]
-  
+    # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
+    if(is.null(dim(standAvgSD[[1]]))){
+      print("warning: no data returned from calibration")
+      return(NA)
+    }
+    standAnalyses.df<-standAvgSD[[1]]
+    print(standAnalyses.df)
+  }else{
+    print("warning: no analyses for oxygen isotope calibration")
+    return(NA)
+  }
   # handle case where there are insufficient internal standards for regression
+  #print(standAnalyses.df)
+  #if(dim(standAnalyses.df)[1]<=1){
+    #if(is.na(standAnalyses.df)){
+     # return(NA)
+    #}
+  #}
   stands_found <- unique(standAnalyses.df$standard)
   #print(length(stands_found))
   if(length(stands_found) != length(standName.vec)){

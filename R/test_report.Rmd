@@ -50,7 +50,7 @@ if(LOOP){
   # LAC just grab first for now, figure out how to loop
   # LAC: for loop here, change index to i, loop idex is length(dxf_dirs)
   # re-processes DATA-PATH at the beginning of every loop as above
-  DATA_PATH <- dxf_dirs[7]
+  DATA_PATH <- dxf_dirs[55]
   #print(DATA_PATH)
   #PLOTS_PATH <- paste(params$RESULT_PATH,"/test_plots",sep="")
   #dir.create(PLOTS_PATH,recursive = TRUE, showWarnings = FALSE)
