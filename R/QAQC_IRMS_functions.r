@@ -629,6 +629,14 @@ ref_samp_intensity_check<-function(currFiltered,
     fileName<-paste(dataName,"_failedRefSampInt.csv",sep="")
     # write failed refSampInt check results to file
     write.table(failedRefSampInt.df,file=fileName,quote=F,row.names=F,sep=",")
+  }else{
+    failedRefSampInt.mat<-matrix(rep(NA,3),
+                                 ncol=3)
+    failedRefSampInt.df<-as.data.frame(failedRefSampInt.mat)
+    colnames(failedRefSampInt.df)<-c("failed_RefSampInt_Analysis", "failed_RefSampInt_Identifier1","failed_RefSampInt_RelDiff")
+    fileName<-paste(dataName,"_failedRefSampInt.csv",sep="")
+    # write failed refSampInt check results to file
+    write.table(failedRefSampInt.df,file=fileName,quote=F,row.names=F,sep=",")
   }
   setwd(oldwd)
   return(currFiltered)
@@ -1403,9 +1411,13 @@ QAQC_IRMS<-function(unfilteredPath,
   stat<-writeFailStats(processed.list=currProc,outputID=dataName)#writeDir=outPath
   
   sampsFiltered.df<-currFiltered[[2]]
-  #setwd(oldwd)
+  # check if there's data to calibrate, if none, return - don't call internal_standards_summary
+  #cat("1415: ", length(currFiltered[[2]]),"\n")
   ### internal standards check: optional flag
-  if(checkIntStand==T){
+  #cat("wtf", checkIntStand==T,"\n")
+  #cat("1418 :", checkIntStand==T & !is.null(sampsFiltered.df), "\n")
+  #cat("hello\n")
+  if( (checkIntStand==T) & (length(currFiltered[[2]])!=0)){
     print("analyzing internal standards...")
     # get avg/sd of internal standards, do linear fit for calibration 
     int_stand.list <- internal_standards_summary(data.df=sampsFiltered.df, dataName=dataName,
@@ -2029,8 +2041,20 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
   standAnalyses.df<-standAvgSD[[1]]
   
+  # handle case where there are insufficient internal standards for regression
+  stands_found <- unique(standAnalyses.df$standard)
+  #print(length(stands_found))
+  if(length(stands_found) != length(standName.vec)){
+    print("warning! fewer internal standards found than specified")
+    # exit this function and continue with QCIRMS if only one standard or none passed QC
+    if(length(stands_found)<=1){
+      print("Only one internal standard type found, aborting internal standard calibration.")
+      return(NA)}
+  }
+  
+  
   filePath<-paste("interal_standards_analysis.csv",sep="")
-  write.table(standAnalyses.df,filePath,row.names=F,quote=F,) 
+  write.table(standAnalyses.df,filePath,row.names=F,quote=F,sep=",") 
   
   # average
   avg_d18O<-standAvgSD[[2]]

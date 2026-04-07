@@ -459,3 +459,4 @@ write_qcirms_report_rmd <- function(
   writeLines(c(yaml_lines, body_lines), con = output_rmd)
   invisible(output_rmd)
 }
+
