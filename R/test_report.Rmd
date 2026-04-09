@@ -13,7 +13,7 @@ params:
   REF_TIME_PATH: "/Users/lily-clough/Documents/QCIRMS/220318_1pct_CO2_NaCl_NaSO4_brines/qc"
   RESULT_PATH: "/Users/lily-clough/Documents/data_processing_irms/OW_Schlenk_IsoData/OW_Schlenk_IsoData/results"
   REF_FILE: "referencePeaks_expectedTimes.txt"
-  CHECK_INTERNAL_STANDARDS: false
+  CHECK_INTERNAL_STANDARDS: true
 always_allow_html: true
 ---
 
@@ -156,9 +156,9 @@ currFiltered <- QAQC_IRMS(
   unfilteredPath = DATA_PATH,
   expRef.df = expRef.df,
   checkIntStand = CHECK_INTERNAL_STANDARDS,
-  internalStandID = c('L1', 'H1', 'LW'),
-  # add params: internal standard delta18O standard deviations and accepted values
-  # LAC
+  internalStandID.vec = c('L1', 'H1', 'LW'),
+  standAcceptedVals.vec = c(-8.55,4.85,-3.85), #d18O only right now
+  standAcceptedSD.vec = c(0.2,0.2,0.2),
   dataName = RESULTS_NAME,
   maxPkNum = 18,
   expectedNonSampPks = 7,

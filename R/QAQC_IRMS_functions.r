@@ -1312,7 +1312,7 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param expRef.df dataframe of expected reference peak times with column names = c("Ref_Peak_Nr", "Expected_Start", "Expected_Rt", "Expected_End")
 #' @param diff.t time interval in seconds for reference peak retention times; default = 10
 #' @param checkIntStand whether to perform internal standards calibration; default = F; not currently functional
-#' @param internalStandID vector of internal standard names for calibration; default = c("L1","H1","LW")
+#' @param internalStandID.vec vector of internal standard names for calibration; default = c("L1","H1","LW")
 #' @param standAcceptedVals.vec vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),
 #' @param standAcceptedSD.vec vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)
 #' @param useColNames vector of column names to extract vendor data from in the dxf files; default = c("fileId","Identifier1","Analysis","Preparation","DateTime",
@@ -1354,7 +1354,7 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' qc_data.list <- QAQC_IRMS(unfilteredPath=dataPath, 
 #'                           expRef.df=expRef.df, 
 #'                           checkIntStand=T, 
-#'                           internalStandID=c("L1","H1","LW"),
+#'                           internalStandID.vec=c("L1","H1","LW"),
 #'                           dataName="abiotic",
 #'                           maxPkNum=18, 
 #'                           expectedNonSampPks=7,
@@ -1381,9 +1381,9 @@ QAQC_IRMS<-function(unfilteredPath,
                     expRef.df, 
                     diff.t=10,
                     checkIntStand=F, 
-                    standAcceptedVals.vec=c(-8.55,4.85,-3.85),
-                    standAcceptedSD.vec=c(0.2,0.2,0.2),
-                    internalStandID=c("L1","H1","LW"),
+                    standAcceptedVals.vec=NULL,
+                    standAcceptedSD.vec=NULL,
+                    internalStandID.vec=c("L1","H1","LW"),
                     useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
@@ -1491,7 +1491,7 @@ QAQC_IRMS<-function(unfilteredPath,
     # get avg/sd of internal standards, do linear fit for calibration 
     int_stand.list <- internal_standards_summary(data.df=sampsFiltered.df, dataName=dataName,
                                                  #outPath=outPath,
-                                                 standName.vec=internalStandID,
+                                                 standName.vec=internalStandID.vec,
                                                  standAcceptedVals.vec=standAcceptedVals.vec,
                                                  standAcceptedSD.vec=standAcceptedSD.vec)
     currFiltered[[3]]<-int_stand.list

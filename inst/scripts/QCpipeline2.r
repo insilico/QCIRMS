@@ -222,9 +222,10 @@ expRef.df
 start<-Sys.time()
 currFiltered<-QAQC_IRMS(unfilteredPath=DATA_PATH, # specified previously
                         expRef.df=expRef.df, 
-                        checkIntStand=CHECK_INTERNAL_STANDARDS, # when T, errors if none pass
-                                                                # Error in if (currAnalysis == prevAnalysis)
+                        checkIntStand=CHECK_INTERNAL_STANDARDS,
                         internalStandID=c("L1","H1","LW"),
+                        standAcceptedVals.vec=c(-8.55,4.85,-3.85), #d18O only right now
+                        standAcceptedSD.vec=c(0.2,0.2,0.2),
                         dataName=resultsFilePrefix,
                         maxPkNum=18, 
                         expectedNonSampPks=7,
