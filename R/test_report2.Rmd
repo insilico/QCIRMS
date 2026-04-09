@@ -1,0 +1,262 @@
+---
+title: "Test Report"
+author: "QCIRMS"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    df_print: paged
+  word_document:
+    toc: yes
+    toc_depth: '3'
+params:
+  MULT_DXF_DIRS: yes
+  DATA_PATH: ~/Documents/Papers/qcirms/test_220318/220318_1pct_CO2_NaCl_NaSO4_brines
+  REF_TIME_PATH: ~/Documents/Papers/qcirms/test_220318/220318_1pct_CO2_NaCl_NaSO4_brines/qc
+  RESULT_PATH: ~/Documents/Papers/qcirms/test_220318/results_220318
+  REF_FILE: referencePeaks_expectedTimes.txt
+  CHECK_INTERNAL_STANDARDS: yes
+  RESULTS_NAME: 220318_1pct_CO2_NaCl_NaSO4_brines 
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+library(QCIRMS)
+library(isoreader)
+library(dplyr)
+library(knitr)
+```
+
+# Overview
+
+This report was generated automatically from a QCIRMS processing template.
+It follows the batch-processing structure of the QCIRMS workflow and includes both written output files and embedded summaries.
+
+# Paths
+
+```{r paths}
+dir.create(params$RESULT_PATH, recursive = TRUE, showWarnings = FALSE)
+LOOP <- params$MULT_DXF_DIRS
+DATA_PATH <- params$DATA_PATH
+# LAC check if this is a dir of dxf files or dir of dirs
+if(LOOP){
+  dxf_dirs <- list.dirs(DATA_PATH,recursive=FALSE)
+  #dxf_dirs <- dxf_dirs[!grepl("/\\.",dxf_dirs)]
+  print(paste("Found ",as.character(length(dxf_dirs)), " directories of data",sep=""))
+  # LAC just grab first for now, figure out how to loop
+  # LAC: for loop here, change index to i, loop idex is length(dxf_dirs)
+  # re-processes DATA-PATH at the beginning of every loop as above
+  #DATA_PATH <- dxf_dirs[55]
+  #cat("dxf_dirs :", dxf_dirs,"\n")
+  #print(DATA_PATH)
+  #PLOTS_PATH <- paste(params$RESULT_PATH,"/test_plots",sep="")
+  #dir.create(PLOTS_PATH,recursive = TRUE, showWarnings = FALSE)
+  #RESULT_PATH <- paste(params$RESULT_PATH,"/test_results",sep="")
+  RESULT_PATH <- params$RESULT_PATH
+  dir.create(RESULT_PATH,recursive = TRUE, showWarnings = FALSE)
+  # grab dxf dir name only
+  #RESULTS_NAME <- sub(".*[/\\\\\\\\]", "",DATA_PATH)
+  RESULTS_NAME <- params$RESULTS_NAME
+  #cat("rn: ", RESULTS_NAME,"\n")
+  #dir.create(paste(RESULT_PATH,"/",RESULTS_NAME,sep=""),recursive = TRUE, showWarnings = FALSE)
+  dir.create(paste(RESULT_PATH,"/",sep=""),recursive = TRUE, showWarnings = FALSE)
+
+  }
+
+REF_TIME_PATH <- params$REF_TIME_PATH
+PLOTS_PATH <- RESULT_PATH#params$PLOTS_PATH
+#RESULT_PATH <- paste(RESULT_PATH,"/",RESULTS_NAME,sep="")#params$RESULT_PATH
+RESULT_PATH <- paste(RESULT_PATH,"/",sep="")
+REF_FILE <- params$REF_FILE
+DATA_PATH <- params$DATA_PATH
+CHECK_INTERNAL_STANDARDS <- params$CHECK_INTERNAL_STANDARDS
+# LAC make output file names dynamic, R double escape for backslashes
+#dir.create(RESULT_PATH, recursive = TRUE, showWarnings = FALSE)
+
+path_tbl <- data.frame(
+  Setting = c('DATA_PATH', 'REF_TIME_PATH', 'PLOTS_PATH', 'RESULT_PATH', 'REF_FILE', 'CHECK_INTERNAL_STANDARDS'),
+  Value = c(DATA_PATH, REF_TIME_PATH, PLOTS_PATH, RESULT_PATH, REF_FILE, CHECK_INTERNAL_STANDARDS),
+  stringsAsFactors = FALSE
+)
+knitr::kable(path_tbl, caption = 'Report parameters')
+```
+
+# Discover DXF files
+
+```{r discover-files}
+fileNames <- all_dxf_files(path = DATA_PATH)
+cat('Number of DXF files found:', length(fileNames), '\n')
+if (length(fileNames) > 0) {
+  knitr::kable(head(data.frame(file = fileNames, stringsAsFactors = FALSE), 10),
+               caption = 'First DXF files discovered')
+} else {
+  stop('No .dxf files found in DATA_PATH.')
+}
+```
+
+# Single-file preview
+
+```{r single-file-preview}
+first_file <- fileNames[1]
+cat('Preview file:', first_file, '\n')
+
+vend.df <- vendor_info(file.path(DATA_PATH, first_file))
+raw.df  <- raw_data(file.path(DATA_PATH, first_file))
+
+knitr::kable(head(vend.df[, seq_len(min(10, ncol(vend.df))), drop = FALSE]),
+             caption = 'Vendor information preview')
+knitr::kable(head(raw.df), caption = 'Raw chromatogram preview')
+
+write.csv(vend.df, file.path(RESULT_PATH, 'single_file_vendor_info.csv'), row.names = FALSE)
+write.csv(raw.df,  file.path(RESULT_PATH, 'single_file_raw_data.csv'), row.names = FALSE)
+```
+
+```{r single-file-plot, fig.width=8, fig.height=5}
+if(dim(raw.df)[1] > 0){ # check for data
+  generic_raw_plot(raw.df = raw.df, title = first_file)
+}
+```
+
+# Reference information
+
+```{r reference-info}
+expRef.df <- read.table(file.path(REF_TIME_PATH, REF_FILE), header = TRUE)
+knitr::kable(expRef.df, caption = 'Expected reference peak times')
+write.csv(expRef.df, file.path(RESULT_PATH, 'expected_reference_times.csv'), row.names = FALSE)
+```
+
+# Batch raw-data processing
+
+```{r batch-raw}
+rawList <- raw_data_all(fileNames, path = DATA_PATH)
+cat('Number of raw chromatogram objects:', length(rawList), '\n')
+raw_lengths <- vapply(rawList, function(x) if (is.null(x)) 0L else nrow(x), integer(1))
+raw_tbl <- data.frame(file = fileNames, n_rows = raw_lengths, stringsAsFactors = FALSE)
+knitr::kable(head(raw_tbl, 10), caption = 'Raw data row counts')
+write.csv(raw_tbl, file.path(RESULT_PATH, 'raw_data_row_counts.csv'), row.names = FALSE)
+```
+
+
+
+```{r batch-plots}
+# TODO: move plotting to end, plot PASS/FAIL as in qcpipeline2.R
+# Batch plots - update to passed/failed
+generic_plot_all_raw(
+  raw.list = rawList,
+  path = RESULT_PATH,
+  write_pdf = TRUE,
+  pdf_name = paste(RESULTS_NAME,"_all_dxf.pdf",sep="")
+)
+cat('Batch plot PDF written to:', file.path(RESULT_PATH, paste(RESULTS_NAME,"_all_dxf.pdf",sep="")), '\n')
+```
+
+
+
+```{r qaqc-run}
+# Run QCIRMS QA/QC
+start_time <- Sys.time()
+currFiltered <- QAQC_IRMS(
+  unfilteredPath = DATA_PATH,
+  expRef.df = expRef.df,
+  checkIntStand = CHECK_INTERNAL_STANDARDS,
+  internalStandID = c('L1', 'H1', 'LW'),
+  # add params: internal standard delta18O standard deviations and accepted values
+  # LAC
+  dataName = RESULTS_NAME,
+  maxPkNum = 18,
+  expectedNonSampPks = 7,
+  sdCrefIso.thresh = 0.1,
+  sdOrefIso.thresh = 0.1,
+  checkRelDiffIntensity = TRUE,
+  refSamp_relDiffInt.thresh = 0.75,
+  amplName = 'Ampl44',
+  ref_relDiffInt.thresh = 0.1,
+  sdCsampIso.thresh = 0.3,
+  sdOsampIso.thresh = 0.2,
+  outPath = RESULT_PATH,
+  verbose = TRUE
+)
+elapsed <- Sys.time() - start_time
+cat('QA/QC runtime:', elapsed, '\n')
+```
+
+# QA/QC outputs
+
+```{r qaqc-outputs}
+refs.dat <- currFiltered[[1]]
+samps.dat <- currFiltered[[2]]
+
+cat('Reference rows after QA/QC:', nrow(refs.dat), '\n')
+cat('Sample rows after QA/QC:', nrow(samps.dat), '\n')
+
+knitr::kable(head(refs.dat), caption = 'Reference peaks passing QA/QC')
+knitr::kable(head(samps.dat), caption = 'Sample peaks passing QA/QC')
+
+# write.csv(refs.dat, file.path(RESULT_PATH, 'report_refs_passed.csv'), row.names = FALSE)
+# write.csv(samps.dat, file.path(RESULT_PATH, 'report_samples_passed.csv'), row.names = FALSE)
+if(length(currFiltered[[1]])!=0 & length(currFiltered[[2]]!=0)){
+  summary_tbl <- data.frame(
+    object = c('reference_peaks', 'sample_peaks'),
+    n_rows = c(nrow(refs.dat), nrow(samps.dat)),
+    n_cols = c(ncol(refs.dat), ncol(samps.dat)),
+    stringsAsFactors = FALSE
+  )
+  knitr::kable(summary_tbl, caption = 'Summary of QA/QC outputs')
+write.csv(summary_tbl, file.path(RESULT_PATH, 'report_summary.csv'), row.names = FALSE)
+}
+
+```
+
+# Internal standards
+
+```{r internal-standards}
+if (CHECK_INTERNAL_STANDARDS && length(currFiltered) >= 3) {
+  int_stand.list <- currFiltered[[3]]
+
+  if (length(int_stand.list) >= 2 && !is.null(int_stand.list[[2]])) {
+    knitr::kable(int_stand.list[[2]], caption = 'Average internal-standard deltas')
+    write.csv(int_stand.list[[2]], file.path(RESULT_PATH, 'internal_standard_means.csv'), row.names = FALSE)
+  }
+
+  if (length(int_stand.list) >= 3 && !is.null(int_stand.list[[3]])) {
+    knitr::kable(int_stand.list[[3]], caption = 'Internal-standard standard deviations')
+    write.csv(int_stand.list[[3]], file.path(RESULT_PATH, 'internal_standard_sds.csv'), row.names = FALSE)
+  }
+} else {
+  cat('Internal standards were not requested or were not returned.\n')
+}
+```
+
+# visualize pass/fail in pdfs of chromatogram thumbnails
+```{r pass-fail-pdfs}
+# Get all filenames of .dxf files in the directory
+passFiles <- unique(samps.dat$fileId)
+if (!is.null(passFiles)){
+  # get passed and failed files from previously defined file names
+  passedInd <- which(fileNames %in% passFiles)
+  failedFiles <- fileNames[-passedInd]
+
+  # get intensity vs time data for passed and failed experiments
+  passed_raw.list <- raw_data_all(passFiles, path=DATA_PATH)
+  failed_raw.list <- raw_data_all(failedFiles, path=DATA_PATH)
+
+  # plot all raw data and write to pdfs
+  # passed QC
+  generic_plot_all_raw(raw.list=passed_raw.list, path=PLOTS_PATH,
+                     write_pdf=T,
+                     pdf_name="passed_qc_spectra.pdf") 
+  # failed QC
+  generic_plot_all_raw(failed_raw.list, path=PLOTS_PATH,
+                     write_pdf=T,
+                     pdf_name="failed_qc_spectra.pdf") 
+} else{
+  cat("All files failed.\n")
+}
+```
