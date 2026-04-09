@@ -9,11 +9,11 @@ output:
     df_print: paged
 params:
   MULT_DXF_DIRS: TRUE
-  DATA_PATH: "/Users/lily-clough/Documents/data_processing_irms/new_ocean_worlds/new_ocean_worlds"
+  DATA_PATH: "/Users/lily-clough/Documents/data_processing_irms/OW_Schlenk_IsoData/OW_Schlenk_IsoData/OW_Schlenk_IsoData_dxf"
   REF_TIME_PATH: "/Users/lily-clough/Documents/QCIRMS/220318_1pct_CO2_NaCl_NaSO4_brines/qc"
-  RESULT_PATH: "/Users/lily-clough/Documents/data_processing_irms/new_ocean_worlds/results"
+  RESULT_PATH: "/Users/lily-clough/Documents/data_processing_irms/OW_Schlenk_IsoData/OW_Schlenk_IsoData/results"
   REF_FILE: "referencePeaks_expectedTimes.txt"
-  CHECK_INTERNAL_STANDARDS: true
+  CHECK_INTERNAL_STANDARDS: false
 always_allow_html: true
 ---
 
@@ -44,13 +44,13 @@ LOOP <- params$MULT_DXF_DIRS
 DATA_PATH <- params$DATA_PATH
 # LAC check if this is a dir of dxf files or dir of dirs
 if(LOOP){
-  dxf_dirs <- list.dirs(DATA_PATH,recursive=FALSE)[-1]
+  dxf_dirs <- list.dirs(DATA_PATH,recursive=FALSE)
   #dxf_dirs <- dxf_dirs[!grepl("/\\.",dxf_dirs)]
   print(paste("Found ",as.character(length(dxf_dirs)), " directories of data",sep=""))
   # LAC just grab first for now, figure out how to loop
   # LAC: for loop here, change index to i, loop idex is length(dxf_dirs)
   # re-processes DATA-PATH at the beginning of every loop as above
-  DATA_PATH <- dxf_dirs[55]
+  DATA_PATH <- dxf_dirs[4]
   #print(DATA_PATH)
   #PLOTS_PATH <- paste(params$RESULT_PATH,"/test_plots",sep="")
   #dir.create(PLOTS_PATH,recursive = TRUE, showWarnings = FALSE)
@@ -170,6 +170,12 @@ currFiltered <- QAQC_IRMS(
   ref_relDiffInt.thresh = 0.1,
   sdCsampIso.thresh = 0.3,
   sdOsampIso.thresh = 0.2,
+  filter_flushPk=T, # not functional yet
+  flushExpT=110,
+  flushTint=20,
+  filter_first_sampPk=T, # not functional yet
+  firstSampExpT=245,
+  firstSampTint=20,
   outPath = RESULT_PATH,
   verbose = TRUE
 )
@@ -221,6 +227,32 @@ if (CHECK_INTERNAL_STANDARDS && length(currFiltered) >= 3) {
   }
 } else {
   cat('Internal standards were not requested or were not returned.\n')
+}
+```
+# visualize pass/fail in pdfs of chromatogram thumbnails
+```{r pass-fail-pdfs}
+# Get all filenames of .dxf files in the directory
+passFiles <- unique(samps.dat$fileId)
+if (!is.null(passFiles)){
+  # get passed and failed files from previously defined file names
+  passedInd <- which(fileNames %in% passFiles)
+  failedFiles <- fileNames[-passedInd]
+
+  # get intensity vs time data for passed and failed experiments
+  passed_raw.list <- raw_data_all(passFiles, path=DATA_PATH)
+  failed_raw.list <- raw_data_all(failedFiles, path=DATA_PATH)
+
+  # plot all raw data and write to pdfs
+  # passed QC
+  generic_plot_all_raw(raw.list=passed_raw.list, path=PLOTS_PATH,
+                     write_pdf=T,
+                     pdf_name="passed_qc_spectra.pdf") 
+  # failed QC
+  generic_plot_all_raw(failed_raw.list, path=PLOTS_PATH,
+                     write_pdf=T,
+                     pdf_name="failed_qc_spectra.pdf") 
+} else{
+  cat("All files failed.\n")
 }
 ```
 

@@ -130,20 +130,20 @@ combineVendFileInfo<-function(path,combColNames,outputID,outPath){
 # dont export yet
 removeFailedAnalysesDXF<-function(sepList, 
                                   expRef.df, 
-                                  maxPkNum=18, 
-                                  expRefPkNr=5,
-                                  diff.t=10,
+                                  maxPkNum, 
+                                  expRefPkNr,
+                                  expectedNonSampPks,
+                                  diff.t,
                                   sdCrefIso.thresh=0.1, 
-                                  expectedNonSampPks=7,
                                   sdOrefIso.thresh=0.1,
                                   relDiffInt.thresh=0.1,
                                   amplName="Ampl44",
-                                  sdCsampIso.thresh=0.3,
-                                  sdOsampIso.thresh=0.2,
-                                  flushExpT=135,
-                                  flushTint=15,
-                                  firstSampExpT=275,
-                                  firstSampTint=15,
+                                  sdCsampIso.thresh, # 0.2
+                                  sdOsampIso.thresh,# 0.35
+                                  flushExpT, # pk3
+                                  flushTint,
+                                  firstSampExpT, #pk6
+                                  firstSampTint,
                                   verbose=T){
   sep.list<-list()
   samps.list<-list()
@@ -307,8 +307,12 @@ removeFailedAnalysesDXF<-function(sepList,
             
             sampProcess<-sample_peaks_processDXF(refTimesOutput=sampRefCheck,
                                                  vend.df=sep.list[[i]],
-                                                 flushExpT=flushExpT, flushTint=flushTint,
-                                                 firstSampExpT=firstSampExpT, firstSampTint=firstSampTint,
+                                                 flushExpT=flushExpT, 
+                                                 flushTint=flushTint,
+                                                 firstSampExpT=firstSampExpT, 
+                                                 firstSampTint=firstSampTint,
+                                                 expRefPkNr = expRefPkNr,
+                                                 expRef.df = expRef.df,
                                                  verbose=verbose)
             
             if(is.null(sampProcess)){
@@ -950,18 +954,23 @@ isoR_similarityDXF<-function(vend.df,
 #' @export
 sample_peaks_processDXF<-function(refTimesOutput,
                                   vend.df,
-                                  flushExpT=135,
-                                  flushTint=15,
-                                  firstSampExpT=275,
-                                  firstSampTint=15,
+                                  flushExpT,
+                                  flushTint,
+                                  firstSampExpT,
+                                  firstSampTint,
+                                  expRefPkNr, #MEOW - have passed ref time check by now
+                                  expRef.df, #MEOW
                                   verbose=T){
   allPeaks<-seq(1,length(vend.df$PeakNr))
+  Rts <- vend.df$Rt
+  
   # start with all as samples then remove reference, flush and 1st sample peak
   samplePeaks<-allPeaks
   # after 4th reference peak
-  pkNrFirstSampleAfterRefs<-as.numeric(refTimesOutput[[2]]$PkNr[4])+1
+  pkNrFirstSampleAfterRefs<-as.numeric(refTimesOutput[[2]]$PkNr[4])+1 # MEOW, fix this
   # grab sample peak vendor info using reference output
   refPeaks<-as.numeric(refTimesOutput[[2]]$PkNr)
+  print("RefPeaks=",refPeaks)
   numR<-length(refPeaks)
   # check for samples
   anySamples<-length(refPeaks)<length(allPeaks)
@@ -1011,9 +1020,9 @@ sample_peaks_processDXF<-function(refTimesOutput,
   }
   flushNotPresent<-flushInd==0
   if(flushNotPresent){
-    #if(verbose==T){print("No flush peak detected within expected time interval")}
+    if(verbose==T){print("No flush peak detected within expected time interval")}
   } else{ # remove flush peak
-    #print("Flush peak detected within expected time interval")
+    if(verbose==T){print("Flush peak detected within expected time interval")}
     procSample<-procSample[-flushInd,]
   }
   # first sample
@@ -1301,6 +1310,12 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param ref_relDiffInt.thresh maximum acceptable difference in reference peak relative intensity; default value = 0.1
 #' @param sdCsampIso.thresh maximum acceptable delta 13C for the sample peaks; default value = 0.3
 #' @param sdOsampIso.thresh maximum acceptable delta 18O for the sample peaks; default value = 0.2
+#' @param filter_flushPk boolean whether to filter out a flush peak; user must provide exptected time and time interval if so
+#' @param flushExpT expected Rt in seconds for the flush peak
+#' @param flushTint time interval around the expected time for the flush peak in which to search
+#' @param filter_first_sampPk boolean whether to filter out the first sample peak
+#' @param firstSampExpT expected Rt in seconds for the first sample peak
+#' @param firstSampTint time interval around the expected time for the first sample peak in which to search
 #' @param verbose whether to print information about the checks; default value = T
 #' @param outPath path to the directory where results will be written; default is the current wd
 #' @return list of two elements: `ret.list[[1]]` - reference peak data that passed QA/QC
@@ -1324,8 +1339,15 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #'                           ref_relDiffInt.thresh=0.1,
 #'                           sdCsampIso.thresh=0.3, # change for biotic=0.6
 #'                           sdOsampIso.thresh=0.2, # change for biotic=0.6
-#'                           outPath=resultsPath,
-#'                           verbose=T)
+#'                           filter_flushPk=T,
+#'                           flushExpT=135,
+#'                           flushTint=15,
+#'                           filter_first_sampPk=T,
+#'                           firstSampExpT=275,
+#'                           firstSampTint=15,
+#'                           verbose=T,
+#'                           outPath=resultsPath
+#'                           )
 #' }
 #' @export  
 QAQC_IRMS<-function(unfilteredPath, 
@@ -1345,17 +1367,23 @@ QAQC_IRMS<-function(unfilteredPath,
                                   "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"), 
                     dataName,
-                    maxPkNum=18, 
-                    expectedNonSampPks=7,
-                    sdCrefIso.thresh=0.1,
-                    sdOrefIso.thresh=0.1,
-                    checkRelDiffIntensity=T,
-                    refSamp_relDiffInt.thresh=0.75,
+                    maxPkNum, 
+                    expectedNonSampPks,
+                    sdCrefIso.thresh,
+                    sdOrefIso.thresh,
+                    checkRelDiffIntensity,
+                    refSamp_relDiffInt.thresh,
                     amplName="Ampl44",
-                    ref_relDiffInt.thresh=0.1,
-                    sdCsampIso.thresh=0.3,
-                    sdOsampIso.thresh=0.2,
-                    outPath=getwd(),
+                    ref_relDiffInt.thresh,
+                    sdCsampIso.thresh,
+                    sdOsampIso.thresh,
+                    filter_flushPk,
+                    flushExpT=NULL,
+                    flushTint=NULL,
+                    filter_first_sampPk,
+                    firstSampExpT=NULL,
+                    firstSampTint=NULL,
+                    outPath,
                     verbose=T #TODO: save "bad" data
 ){
   # return data that passes QC
@@ -1384,6 +1412,10 @@ QAQC_IRMS<-function(unfilteredPath,
                                     sdOrefIso.thresh=sdOrefIso.thresh,
                                     sdCsampIso.thresh=sdCsampIso.thresh,
                                     sdOsampIso.thresh=sdOsampIso.thresh,
+                                    flushExpT = flushExpT,
+                                    flushTint = flushTint,
+                                    firstSampExpT = firstSampExpT,
+                                    firstSampTint = firstSampTint,
                                     verbose=verbose)
   
   # adjust reference data for any samples removed

@@ -12,7 +12,7 @@ output:
     toc_depth: '3'
 params:
   MULT_DXF_DIRS: yes
-  DATA_PATH: ~/Documents/Papers/qcirms/test_220318/220318_1pct_CO2_NaCl_NaSO4_brines
+  DATA_PATH: Users/lily-clough/Documents/data_processing_irms/OW_Schlenk_IsoData/OW_Schlenk_IsoData/OW_Schlenk_IsoData_dxf
   REF_TIME_PATH: ~/Documents/Papers/qcirms/test_220318/220318_1pct_CO2_NaCl_NaSO4_brines/qc
   RESULT_PATH: ~/Documents/Papers/qcirms/test_220318/results_220318
   REF_FILE: referencePeaks_expectedTimes.txt
@@ -53,7 +53,7 @@ if(LOOP){
   # LAC just grab first for now, figure out how to loop
   # LAC: for loop here, change index to i, loop idex is length(dxf_dirs)
   # re-processes DATA-PATH at the beginning of every loop as above
-  #DATA_PATH <- dxf_dirs[55]
+  DATA_PATH <- dxf_dirs[1]
   #cat("dxf_dirs :", dxf_dirs,"\n")
   #print(DATA_PATH)
   #PLOTS_PATH <- paste(params$RESULT_PATH,"/test_plots",sep="")
