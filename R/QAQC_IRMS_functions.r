@@ -97,6 +97,7 @@ combineVendFileInfo<-function(path,combColNames,outputID,outPath){
 #' @param firstSampExpT the expected retention time for the first sample peak in seconds; default value = 275
 #' @param firstSampTint the accepted interval in seconds for the arrival of the first sample peak; default value = 15
 #' @param verbose whether to print information about failed analyses; default value = T
+#' @param firstSampExpPkNr expected peak number of the first sample peak
 #' @return list of eight elements containing information on samples that failed the checks and the data that passed
 #' `ret.list[[1]]`: info for samples that failed the peak number check
 #' `ret.list[[2]]`: info for samples that failed the reference peaks check
@@ -140,10 +141,13 @@ removeFailedAnalysesDXF<-function(sepList,
                                   amplName="Ampl44",
                                   sdCsampIso.thresh, # 0.2
                                   sdOsampIso.thresh,# 0.35
+                                  filter_flushPk,
+                                  filter_first_sampPk,
                                   flushExpT, # pk3
                                   flushTint,
                                   firstSampExpT, #pk6
                                   firstSampTint,
+                                  firstSampExpPkNr,
                                   verbose=T){
   sep.list<-list()
   samps.list<-list()
@@ -304,13 +308,15 @@ removeFailedAnalysesDXF<-function(sepList,
             refIndex<-refIndex+1
             # ** only check samples if ref data was added
             # process the sample peaks: remove flush peak and 1st sample peak (contamination)
-            
             sampProcess<-sample_peaks_processDXF(refTimesOutput=sampRefCheck,
                                                  vend.df=sep.list[[i]],
+                                                 filter_flushPk = filter_flushPk,
+                                                 filter_first_sampPk = filter_first_sampPk,
                                                  flushExpT=flushExpT, 
                                                  flushTint=flushTint,
                                                  firstSampExpT=firstSampExpT, 
                                                  firstSampTint=firstSampTint,
+                                                 firstSampExpPkNr=firstSampExpPkNr,
                                                  expRefPkNr = expRefPkNr,
                                                  expRef.df = expRef.df,
                                                  verbose=verbose)
@@ -335,7 +341,8 @@ removeFailedAnalysesDXF<-function(sepList,
               }
               #*
               failedSampReas.vec<-c(failedSampReas.vec,"NoSamps_afterProc")
-            }else{
+            }
+            else{
               # check sample iso ratios for d18O/16O
               sampIsoCheck<-isoR_similarityDXF(vend.df=sep.list[[i]],
                                                peakNr.vec=sampProcess$PeakNr,
@@ -951,12 +958,27 @@ isoR_similarityDXF<-function(vend.df,
 
 # (11)
 #' sample_peaks_processDXF
+#' @param refTimesOutput
+#' @param vend.df
+#' @param filter_flushPk
+#' @param flushExpT
+#' @param flushTint
+#' @param filter_first_sampPk
+#' @param firstSampExpT
+#' @param firstSampExpPkNr
+#' @param firstSampTint
+#' @param expRefPkNr
+#' @param expRef.df
+#' @param verbose
 #' @export
 sample_peaks_processDXF<-function(refTimesOutput,
                                   vend.df,
+                                  filter_flushPk,
                                   flushExpT,
                                   flushTint,
+                                  filter_first_sampPk,
                                   firstSampExpT,
+                                  firstSampExpPkNr,
                                   firstSampTint,
                                   expRefPkNr, #MEOW - have passed ref time check by now
                                   expRef.df, #MEOW
@@ -966,11 +988,11 @@ sample_peaks_processDXF<-function(refTimesOutput,
   
   # start with all as samples then remove reference, flush and 1st sample peak
   samplePeaks<-allPeaks
-  # after 4th reference peak
-  pkNrFirstSampleAfterRefs<-as.numeric(refTimesOutput[[2]]$PkNr[4])+1 # MEOW, fix this
+  # first sample peak
+  pkNrFirstSampleAfterRefs<-firstSampExpPkNr#as.numeric(refTimesOutput[[2]]$PkNr[4])+1 # MEOW, fix this
   # grab sample peak vendor info using reference output
   refPeaks<-as.numeric(refTimesOutput[[2]]$PkNr)
-  print("RefPeaks=",refPeaks)
+  #print("RefPeaks=",refPeaks)
   numR<-length(refPeaks)
   # check for samples
   anySamples<-length(refPeaks)<length(allPeaks)
@@ -1011,6 +1033,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
   procSampleStart<-as.numeric(procSample$Start)
   flushInd=0
   
+  if(filter_flushPk){
   # find flush peak by time**
   for(i in seq(1,length(procSampleStart))){
     if(abs(flushExpT-procSampleStart[i])<flushTint){ #within 10 secs? or use a different way to ID flush peak?
@@ -1025,6 +1048,8 @@ sample_peaks_processDXF<-function(refTimesOutput,
     if(verbose==T){print("Flush peak detected within expected time interval")}
     procSample<-procSample[-flushInd,]
   }
+  }
+  if(filter_first_sampPk){
   # first sample
   firstSampleInd<-which(procSample$PeakNr==pkNrFirstSampleAfterRefs)
   firstSampleVend<-procSample[firstSampleInd,]
@@ -1034,9 +1059,9 @@ sample_peaks_processDXF<-function(refTimesOutput,
     if(length(refTimesOutput[[3]]$Analysis)>0){ # if there's an analysis number
       analysisNum<-refTimesOutput[[3]]$Analysis[1]
       if(verbose==T){print(paste("No sample peaks after flush detected in Analysis ",analysisNum,sep=""))}
-    }else{
+    }#else{
       #if(verbose==T){print("No sample peaks after flush detected")}
-    }
+    #}
     return()
   }
   # check that the time for the first sample peak is in the expected interval
@@ -1058,6 +1083,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
       if(verbose==T){print("No sample peaks left after processing ")}
     }
     return()
+  }
   }
   #print(paste("Removed peaks at Rts ",round(as.numeric(flushPeak$Rt),3), "s (flush peak) and ",round(firstSampleTime,3),"s (1st sample peak)",sep=""))
   return(procSample)
@@ -1315,6 +1341,7 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param flushTint time interval around the expected time for the flush peak in which to search
 #' @param filter_first_sampPk boolean whether to filter out the first sample peak
 #' @param firstSampExpT expected Rt in seconds for the first sample peak
+#' @param firstSampExpPkNr expect peak number of the first sample peak
 #' @param firstSampTint time interval around the expected time for the first sample peak in which to search
 #' @param verbose whether to print information about the checks; default value = T
 #' @param outPath path to the directory where results will be written; default is the current wd
@@ -1383,6 +1410,7 @@ QAQC_IRMS<-function(unfilteredPath,
                     filter_first_sampPk,
                     firstSampExpT=NULL,
                     firstSampTint=NULL,
+                    firstSampExpPkNr=NULL,
                     outPath,
                     verbose=T #TODO: save "bad" data
 ){
@@ -1412,10 +1440,13 @@ QAQC_IRMS<-function(unfilteredPath,
                                     sdOrefIso.thresh=sdOrefIso.thresh,
                                     sdCsampIso.thresh=sdCsampIso.thresh,
                                     sdOsampIso.thresh=sdOsampIso.thresh,
+                                    filter_flushPk = filter_flushPk,
+                                    filter_first_sampPk = filter_first_sampPk,
                                     flushExpT = flushExpT,
                                     flushTint = flushTint,
                                     firstSampExpT = firstSampExpT,
                                     firstSampTint = firstSampTint,
+                                    firstSampExpPkNr = firstSampExpPkNr,
                                     verbose=verbose)
   
   # adjust reference data for any samples removed
