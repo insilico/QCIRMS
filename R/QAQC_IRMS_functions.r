@@ -29,25 +29,57 @@ combineVendFileInfo<-function(path,combColNames,outputID,outPath){
   
   files<-all_dxf_files()
   vend<-vendor_info_all(files)
+  #print("vend:")
+  #print(vend)
+ # just use Identifier1
   fileInfo<-file_info(files)
+  #print("file info:")
+  #print(fileInfo)
+  #print("Prep")
+  #print(fileInfo$Preparation) # try to fix here
+  prep_vec_broken <- fileInfo$Preparation
+  # fix spaces and commas if there
+  if( (sum(grepl(" ", prep_vec_broken))>0) | (sum(grepl(",",prep_vec_broken))>0) ){
+    prep_vec_fix <- gsub(" ","_",prep_vec_broken)
+    if(sum(grepl(",", prep_vec_fix))>0){
+      prep_vec_fix<-gsub(",","_",prep_vec_fix)
+    }
+    # if there are two subscripts just use one
+    if(sum(grepl("__", prep_vec_fix))>0){
+      prep_vec_fix<-gsub("__","_",prep_vec_fix)
+    }
+    fileInfo$Preparation <- prep_vec_fix
+    #print("fix:")
+    #print(prep_vec_fix)
+  }
+  
+  #print("new file info:")
+  #print(fileInfo)
+
   # make a list of combined vendor data and file info dfs for each experiment
   combList<-list()
   failedInd<-c()
   failedFiles<-c()
-  for(i in seq(1,length(files))){
+  for(i in seq(1,dim(fileInfo)[1])){
     # make file info df to add to vend df
     mat<-matrix(rep(NA,nrow(vend[[i]])*ncol(fileInfo)),#ncol(fileInfo[[i]])),
                 nrow=nrow(vend[[i]]))
     df<-as.data.frame(mat)
     df[1:nrow(df),]<-fileInfo[i,]
+    #print("Df:")
+    #print(df)
     # need to check if there is data
-    isVendData<-!(dim(vend[[i]])[1]==0)
+    isVendData <- !(dim(vend[[i]])[1]==0)
+    #print("vend before loop")
+    #print(vend[[i]][,2:ncol(vend[[i]])])
     if(isVendData){
       # make a combined df
       combDF<-data.frame(cbind(df,vend[[i]][,2:ncol(vend[[i]])]))
       # fileId, Identifier1, Analysis, DateTime, PeakNr,
       # Start, Rt, End, Ampl44,
+      #print("combDF")
       colnames(combDF)<-combColNames
+      #print(combDF)
       # add to list
       combList[[i]]<-combDF
     }else{
@@ -1174,6 +1206,7 @@ vendor_info_all<-function(files){
 # (15)
 #' file_info: function that returns the isoreader file_info 
 #' @param files vector containing dxf file names as elements
+#' @param path optional argument for file path
 #' @return dataframe of file info
 #' @examples
 #' \dontrun{
@@ -1187,6 +1220,8 @@ file_info<-function(files, path=NULL){
   }
   num_files<-length(files)
   msdat<-iso_read_continuous_flow(files[1:num_files])
+  
+ #default cols
   file_info<-msdat %>%
     iso_get_file_info(
       select = c(
@@ -1200,6 +1235,7 @@ file_info<-function(files, path=NULL){
       # explicitly allow for file specific rename (for the new ID column)
       file_specific = TRUE #mostly useful with data from different instruments
     )
+  
   # convert from tibble to df
   file_info.df<-as.data.frame(file_info)
   file_info.df
@@ -1421,6 +1457,7 @@ QAQC_IRMS<-function(unfilteredPath,
   # create directory for results
   oldwd<-getwd()
   combList<-combineVendFileInfo(unfilteredPath,useColNames,dataName,outPath=outPath)
+  #print(combList[[1]])
   origNumFiles<-length(combList) 
   
   if(verbose==T){
