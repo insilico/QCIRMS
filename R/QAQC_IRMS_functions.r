@@ -2115,7 +2115,7 @@ stand_lm<-function(acceptedMeas.df,dataName){
   fit.summ<-summary(standard.fit)
   # plot
   plot(acceptedMeas.df$measured,acceptedMeas.df$accepted,col=c("orange","green","blue"),
-       main=paste("lm for accepted vs measured d18O standards: ",dataName,"\n",
+       main=paste("lm for accepted vs measured d18O standards: \n",dataName,"\n",
                   "r^2 = ",round(fit.summ$r.squared,4),sep=""), 
        xlab="measured",ylab="accepted",pch=20)
   legend("bottomright", legend=c("L1","LW","H1"),
@@ -2187,23 +2187,23 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   }
   
   
-  filePath<-paste("interal_standards_analysis.csv",sep="")
+  filePath<-paste(dataName,"interal_standards_analysis.csv",sep="")
   write.table(standAnalyses.df,filePath,row.names=F,quote=F,sep=",") 
   
   # average
   avg_d18O<-standAvgSD[[2]]
   
-  filePath<-paste("avg_interal_standards.csv",sep="")
+  filePath<-paste(dataName,"avg_interal_standards.csv",sep="")
   write.table(avg_d18O,filePath,row.names=F,quote=F,sep=",")
   
   # standard deviations
   sd_d18O<-standAvgSD[[3]]
   
-  filePath<-paste("sd_internal_standards.csv",sep="")
+  filePath<-paste(dataName,"sd_internal_standards.csv",sep="")
   write.table(sd_d18O,filePath,row.names=F,quote=F,sep=",")
   
   ## save graph to file
-  filePath<-paste("int_stand_lm.pdf",sep="")
+  filePath<-paste(dataName,"int_stand_lm.pdf",sep="")
   pdf(file=filePath,width=6,height=4)
   standlm<-stand_lm(avg_d18O,dataName=dataName)
   dev.off()
@@ -2217,13 +2217,13 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   colnames(lmCoeff.df)<-c("intercept","slope","r^2","L1_resid","H1_resid","LW_resid")
   
   # write lm stats to file
-  filePath<-paste("intStand_lm.csv",sep="")
+  filePath<-paste(dataName,"intStand_lm.csv",sep="")
   write.table(lmCoeff.df,filePath,row.names=F,quote=F,sep=",")
   
   # std error, t val and p val
   lmCoeffStat<-standlm[[2]]$coefficients
   
-  filePath<-paste("intStand_coefficients.csv",sep="")
+  filePath<-paste(dataName,"intStand_coefficients.csv",sep="")
   write.table(lmCoeffStat,filePath,row.names=T,quote=F,sep=",")
   
   # return data
