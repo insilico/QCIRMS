@@ -45,7 +45,7 @@ REF_TIME_PATH <- params$REF_TIME_PATH
 
 # get number of dxf directories 
 dxf_dirs <- list.dirs(DATA_PATH,recursive=FALSE)
-dxf_dirs <- dxf_dirs[!grepl("/\\.",dxf_dirs)] # remove hidden files from dxf_dirs vec
+dxf_dirs <- dxf_dirs[!grepl("/\\.",dxf_dirs)] # remove hidden files from dxf_dirs
 print(paste("Found ",as.character(length(dxf_dirs)), " directories of data",sep=""))
 # loop over number of directories
 for(i in seq(1,length(dxf_dirs))){
@@ -88,7 +88,7 @@ for(i in seq(1,length(dxf_dirs))){
   # load ref peak times
   expRef.df <- read.table(file.path(REF_TIME_PATH, REF_FILE), header = TRUE)
   knitr::kable(expRef.df, caption = 'Expected reference peak times')
-  write.csv(expRef.df, file.path(WRITE_PATH, 'expected_reference_times.csv'), row.names = FALSE)
+  write.csv(expRef.df, file.path(WRITE_PATH, paste(RESULTS_NAME,'_expected_reference_times.csv',sep="")), row.names = FALSE)
  
   
   # run QC
@@ -140,12 +140,12 @@ for(i in seq(1,length(dxf_dirs))){
 
   if(length(int_stand.list) >= 2 && !is.null(int_stand.list[[2]])){
     knitr::kable(int_stand.list[[2]], caption = 'Average internal-standard deltas')
-    write.csv(int_stand.list[[2]], file.path(WRITE_PATH, 'internal_standard_means.csv'), row.names = FALSE)
+    write.csv(int_stand.list[[2]], file.path(WRITE_PATH, paste(RESULTS_NAME,'_internal_standard_means.csv',sep="")), row.names = FALSE)
     }
 
   if(length(int_stand.list) >= 3 && !is.null(int_stand.list[[3]])){
     knitr::kable(int_stand.list[[3]], caption = 'Internal-standard standard deviations')
-    write.csv(int_stand.list[[3]], file.path(WRITE_PATH, 'internal_standard_sds.csv'), row.names = FALSE)
+    write.csv(int_stand.list[[3]], file.path(WRITE_PATH, paste(RESULTS_NAME,'_internal_standard_sds.csv',sep="")), row.names = FALSE)
     }
   }else{
     cat('Internal standards were not requested or were not returned.\n')
@@ -161,8 +161,8 @@ for(i in seq(1,length(dxf_dirs))){
   knitr::kable(head(refs.dat), caption = 'Reference peaks passing QA/QC')
   knitr::kable(head(samps.dat), caption = 'Sample peaks passing QA/QC')
 
-  write.csv(refs.dat, file.path(WRITE_PATH, 'report_refs_passed.csv'), row.names = FALSE)
-  write.csv(samps.dat, file.path(WRITE_PATH, 'report_samples_passed.csv'), row.names = FALSE)
+  write.csv(refs.dat, file.path(WRITE_PATH, paste(RESULTS_NAME,'_report_refs_passed.csv',sep="")), row.names = FALSE)
+  write.csv(samps.dat, file.path(WRITE_PATH, paste(RESULTS_NAME,'_report_samples_passed.csv',sep="")), row.names = FALSE)
   if(length(currFiltered[[1]])!=0 & length(currFiltered[[2]]!=0)){
     summary_tbl <- data.frame(
     object = c('reference_peaks', 'sample_peaks'),
@@ -171,7 +171,7 @@ for(i in seq(1,length(dxf_dirs))){
     stringsAsFactors = FALSE
   )
   knitr::kable(summary_tbl, caption = 'Summary of QA/QC outputs')
-  write.csv(summary_tbl, file.path(WRITE_PATH, 'report_summary.csv'), row.names = FALSE)
+  write.csv(summary_tbl, file.path(WRITE_PATH, paste(RESULTS_NAME,'_report_summary.csv',sep="")), row.names = FALSE)
   }
 
  # Get all filenames of .dxf files in the directory
@@ -188,22 +188,16 @@ for(i in seq(1,length(dxf_dirs))){
   # passed QC
   generic_plot_all_raw(raw.list=passed_raw.list, path=WRITE_PATH,
                      write_pdf=T,
-                     pdf_name="passed_qc_spectra.pdf") 
+                     pdf_name=paste(RESULTS_NAME,"_passed_qc_spectra.pdf",sep="")) 
   # failed QC
   generic_plot_all_raw(failed_raw.list, path=WRITE_PATH,
                      write_pdf=T,
-                     pdf_name="failed_qc_spectra.pdf") 
+                     pdf_name=paste(RESULTS_NAME,"failed_qc_spectra.pdf",sep="")) 
   } else{
     cat("All files failed.\n")
   }
 
 }
-
-
-
-
-
-
 
 
 
