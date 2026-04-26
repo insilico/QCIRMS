@@ -2187,23 +2187,23 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   }
   
   
-  filePath<-paste(dataName,"interal_standards_analysis.csv",sep="")
+  filePath<-paste(dataName,"_internal_standards_analysis.csv",sep="")
   write.table(standAnalyses.df,filePath,row.names=F,quote=F,sep=",") 
   
   # average
   avg_d18O<-standAvgSD[[2]]
   
-  filePath<-paste(dataName,"avg_interal_standards.csv",sep="")
+  filePath<-paste(dataName,"_avg_interal_standards.csv",sep="")
   write.table(avg_d18O,filePath,row.names=F,quote=F,sep=",")
   
   # standard deviations
   sd_d18O<-standAvgSD[[3]]
   
-  filePath<-paste(dataName,"sd_internal_standards.csv",sep="")
+  filePath<-paste(dataName,"_sd_internal_standards.csv",sep="")
   write.table(sd_d18O,filePath,row.names=F,quote=F,sep=",")
   
   ## save graph to file
-  filePath<-paste(dataName,"int_stand_lm.pdf",sep="")
+  filePath<-paste(dataName,"_int_stand_lm.pdf",sep="")
   pdf(file=filePath,width=6,height=4)
   standlm<-stand_lm(avg_d18O,dataName=dataName)
   dev.off()
@@ -2217,13 +2217,13 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   colnames(lmCoeff.df)<-c("intercept","slope","r^2","L1_resid","H1_resid","LW_resid")
   
   # write lm stats to file
-  filePath<-paste(dataName,"intStand_lm.csv",sep="")
+  filePath<-paste(dataName,"_intStand_lm.csv",sep="")
   write.table(lmCoeff.df,filePath,row.names=F,quote=F,sep=",")
   
   # std error, t val and p val
   lmCoeffStat<-standlm[[2]]$coefficients
   
-  filePath<-paste(dataName,"intStand_coefficients.csv",sep="")
+  filePath<-paste(dataName,"_intStand_coefficients.csv",sep="")
   write.table(lmCoeffStat,filePath,row.names=T,quote=F,sep=",")
   
   # return data
