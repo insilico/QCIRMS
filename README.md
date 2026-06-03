@@ -19,6 +19,7 @@ devtools::install_github("insilico/QCIRMS")
 
 ```
 # example dxf data file provided in package: inst/extdata
+library(isoreader)
 library(QCIRMS)
 dxf_file <- "170506_NaHCO3 L + NaCl U_.dxf"
 dataPath <- system.file("extdata/dxf_files/abiotic", dxf_file, package = "QCIRMS")
