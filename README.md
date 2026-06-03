@@ -4,11 +4,15 @@ Quality Control Analysis for Isotope Ratio Mass Spectrometry Data
 ### To install:
 
 ```
-install.packages("pak")
+#install.packages("pak")
 library(pak)
 pak::pak("insilico/QCIRMS")
 ```
-
+If the above doesn't work, try this.
+```
+devtools::install_github("isoverse/isoreader")
+devtools::install_github("insilico/QCIRMS")
+```
 ### Dependencies
 
 ### Examples
