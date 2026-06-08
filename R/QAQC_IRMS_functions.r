@@ -31,7 +31,7 @@ combineVendFileInfo<-function(path,combColNames= c("fileId","Identifier1","Analy
 #'                                   "d45CO244CO2", "R46CO244CO2", "rd46CO244CO2","d46CO244CO2",
 #'                                   "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
 #'                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
-                                     outputID,outPath){
+                                     outputID,outPath)){
   oldwd<-getwd()
   # make a combined dataframe for vendor and file info
   setwd(path)
