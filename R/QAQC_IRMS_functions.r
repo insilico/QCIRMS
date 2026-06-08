@@ -22,7 +22,16 @@
 #'                                  outputID = "abiotic")
 #' }
 #' @export
-combineVendFileInfo<-function(path,combColNames,outputID,outPath){
+combineVendFileInfo<-function(path,combColNames= c("fileId","Identifier1","Analysis","Preparation","DateTime",
+#'                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
+#'                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
+#'                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",
+#'                                   "Intensity46","IntensityAll","ListFirstPeak","rR45CO244CO2",
+#'                                   "rR46CO244CO2","IsRef","R45CO244CO2","RefName","rd45CO244CO2",
+#'                                   "d45CO244CO2", "R46CO244CO2", "rd46CO244CO2","d46CO244CO2",
+#'                                   "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
+#'                                   "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
+                                     outputID,outPath){
   oldwd<-getwd()
   # make a combined dataframe for vendor and file info
   setwd(path)
