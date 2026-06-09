@@ -22,10 +22,18 @@
 #'                                  outputID = "abiotic")
 #' }
 #' @export
-combineVendFileInfo<-function(path,combColNames,
-                                     outputID,outPath){
+combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+                                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
+                                                    "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
+                                                    "rIntensity46","rIntensityAll","Intensity44","Intensity45",
+                                                    "Intensity46","IntensityAll","ListFirstPeak","rR45CO244CO2",
+                                                    "rR46CO244CO2","IsRef","R45CO244CO2","RefName","rd45CO244CO2",
+                                                    "d45CO244CO2", "R46CO244CO2", "rd46CO244CO2","d46CO244CO2",
+                                                    "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
+                                                    "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
+                                     outputID="abiotic",outPath){
   oldwd<-getwd()
-  # make a combined dataframe for vendor and file info
+  # make a combined data.frame for vendor and file info
   setwd(path)
   
   files<-all_dxf_files()
@@ -991,18 +999,18 @@ isoR_similarityDXF<-function(vend.df,
 
 # (11)
 #' sample_peaks_processDXF
-#' @param refTimesOutput
-#' @param vend.df
-#' @param filter_flushPk
-#' @param flushExpT
-#' @param flushTint
-#' @param filter_first_sampPk
-#' @param firstSampExpT
-#' @param firstSampExpPkNr
-#' @param firstSampTint
-#' @param expRefPkNr
-#' @param expRef.df
-#' @param verbose
+#' @param refTimesOutput reference times
+#' @param vend.df vender data frame
+#' @param filter_flushPk boolean for whether to filter flush peak
+#' @param flushExpT expected time for flush peak
+#' @param flushTint time interval for flush peak time check
+#' @param filter_first_sampPk boolean for whether to filter first sample peak
+#' @param firstSampExpT expected time for first sample peak
+#' @param firstSampExpPkNr expected peak number for first sample peak
+#' @param firstSampTint time interval for first sample peak time check
+#' @param expRefPkNr expected reference peak numbers (for identifying sample peaks)
+#' @param expRef.df expected reference peak data frame (for identifying sample peaks)
+#' @param verbose boolean for whether to print messages about sample peak processing
 #' @export
 sample_peaks_processDXF<-function(refTimesOutput,
                                   vend.df,
