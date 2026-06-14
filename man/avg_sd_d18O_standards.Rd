@@ -6,10 +6,10 @@
 \usage{
 avg_sd_d18O_standards(
   allStandards_d18O.list,
-  standNames = c("L1", "H1", "LW"),
+  standNames,
   isoName = "d18O16O",
-  standAcceptedVals.vec = c(-8.55, 4.85, -3.85),
-  accStandRatioSD = c(0.2, 0.2, 0.2)
+  standAcceptedVals_vec,
+  accStandRatioSD
 )
 }
 \arguments{
@@ -17,7 +17,7 @@ avg_sd_d18O_standards(
 
 \item{standNames}{character vector containing the names of the standards}
 
-\item{standAcceptedVals.vec}{numeric vector containing the accepted values of the standards}
+\item{standAcceptedVals_vec}{numeric vector containing the accepted values of the standards}
 
 \item{accStandRatioSD}{numeric vector containing the accepted standard deviation values for each of the standards (in the same order as names in standNames)}
 }

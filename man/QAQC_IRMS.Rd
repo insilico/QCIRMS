@@ -9,8 +9,8 @@ QAQC_IRMS(
   expRef.df,
   diff.t = 10,
   checkIntStand = F,
-  standAcceptedVals.vec = NULL,
-  standAcceptedSD.vec = NULL,
+  standAcceptedVals_vec,
+  standAcceptedSD_vec,
   internalStandID.vec = c("L1", "H1", "LW"),
   useColNames = c("fileId", "Identifier1", "Analysis", "Preparation", "DateTime",
     "PeakNr", "Start", "Rt", "End", "Ampl44", "Ampl45", "Ampl46", "BGD44", "BGD45",
@@ -33,12 +33,12 @@ QAQC_IRMS(
   sdCsampIso.thresh,
   sdOsampIso.thresh,
   filter_flushPk,
-  flushExpT = NULL,
-  flushTint = NULL,
+  flushExpT,
+  flushTint,
   filter_first_sampPk,
-  firstSampExpT = NULL,
-  firstSampTint = NULL,
-  firstSampExpPkNr = NULL,
+  firstSampExpT,
+  firstSampTint,
+  firstSampExpPkNr,
   outPath,
   verbose = T
 )
@@ -52,9 +52,9 @@ QAQC_IRMS(
 
 \item{checkIntStand}{whether to perform internal standards calibration; default = F; not currently functional}
 
-\item{standAcceptedVals.vec}{vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),}
+\item{standAcceptedVals_vec}{vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),}
 
-\item{standAcceptedSD.vec}{vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)}
+\item{standAcceptedSD_vec}{vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)}
 
 \item{internalStandID.vec}{vector of internal standard names for calibration; default = c("L1","H1","LW")}
 

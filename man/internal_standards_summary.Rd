@@ -7,9 +7,9 @@
 internal_standards_summary(
   data.df,
   dataName,
-  standName.vec = c("L1", "H1", "LW"),
-  standAcceptedVals.vec = c(-8.55, 4.85, -3.85),
-  standAcceptedSD.vec = c(0.2, 0.2, 0.2)
+  standName.vec,
+  standAcceptedVals_vec,
+  standAcceptedSD_vec
 )
 }
 \arguments{
@@ -19,9 +19,9 @@ internal_standards_summary(
 
 \item{standName.vec}{vector of internal standard names}
 
-\item{standAcceptedVals.vec}{vector of internal standard delta values}
+\item{standAcceptedVals_vec}{vector of internal standard delta values}
 
-\item{standAcceptedSD.vec}{vector of acceptable internal standard SD in delta values}
+\item{standAcceptedSD_vec}{vector of acceptable internal standard SD in delta values}
 }
 \value{
 list of four elements:
