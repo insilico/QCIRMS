@@ -9,3 +9,4 @@ extdata/
 *.pdf
 *.rds
 .DS_Store
+.positai

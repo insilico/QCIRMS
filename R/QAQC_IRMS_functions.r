@@ -1093,6 +1093,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
   if(filter_first_sampPk){
   # first sample
   firstSampleInd<-which(procSample$PeakNr==pkNrFirstSampleAfterRefs)
+  print("first sample index:",firstSampleInd)
   firstSampleVend<-procSample[firstSampleInd,]
   firstSampleTime<-as.numeric(firstSampleVend$Rt)
   # check if other samples present (other than flush)
@@ -1116,6 +1117,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
   }
   # check if there are any sample peaks left after processing out the first 2
   pkNrProc.len<-length(procSample$PeakNr)
+  print("num peaks: ",procSample$PeakNr)
   if(pkNrProc.len==0){
     if(length(refTimesOutput[[3]]$Analysis)>0){ # if there's an analysis number
       analysisNum<-refTimesOutput[[3]]$Analysis[1]
@@ -1358,8 +1360,8 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param diff.t time interval in seconds for reference peak retention times; default = 10
 #' @param checkIntStand whether to perform internal standards calibration; default = F; not currently functional
 #' @param internalStandID.vec vector of internal standard names for calibration; default = c("L1","H1","LW")
-#' @param standAcceptedVals.vec vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),
-#' @param standAcceptedSD.vec vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)
+#' @param standAcceptedVals_vec vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),
+#' @param standAcceptedSD_vec vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)
 #' @param useColNames vector of column names to extract vendor data from in the dxf files; default = c("fileId","Identifier1","Analysis","Preparation","DateTime",
 #'                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 #'                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
@@ -1426,8 +1428,8 @@ QAQC_IRMS<-function(unfilteredPath,
                     expRef.df, 
                     diff.t=10,
                     checkIntStand=F, 
-                    standAcceptedVals.vec=NULL,
-                    standAcceptedSD.vec=NULL,
+                    standAcceptedVals_vec,
+                    standAcceptedSD_vec,
                     internalStandID.vec=c("L1","H1","LW"),
                     useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
@@ -1450,12 +1452,12 @@ QAQC_IRMS<-function(unfilteredPath,
                     sdCsampIso.thresh,
                     sdOsampIso.thresh,
                     filter_flushPk,
-                    flushExpT=NULL,
-                    flushTint=NULL,
+                    flushExpT,
+                    flushTint,
                     filter_first_sampPk,
-                    firstSampExpT=NULL,
-                    firstSampTint=NULL,
-                    firstSampExpPkNr=NULL,
+                    firstSampExpT,
+                    firstSampTint,
+                    firstSampExpPkNr,
                     outPath,
                     verbose=T #TODO: save "bad" data
 ){
@@ -1538,8 +1540,8 @@ QAQC_IRMS<-function(unfilteredPath,
     int_stand.list <- internal_standards_summary(data.df=sampsFiltered.df, dataName=dataName,
                                                  #outPath=outPath,
                                                  standName.vec=internalStandID.vec,
-                                                 standAcceptedVals.vec=standAcceptedVals.vec,
-                                                 standAcceptedSD.vec=standAcceptedSD.vec)
+                                                 standAcceptedVals_vec=standAcceptedVals_vec,
+                                                 standAcceptedSD_vec=standAcceptedSD_vec)
     currFiltered[[3]]<-int_stand.list
     
   }
@@ -1962,7 +1964,7 @@ DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
 #' avg_sd_d18O_standards: function to find d18O/16O averages and standard deviations for each set of files represented in input list
 #' @param allStandards_d18O.list list built from output of d18O_samples_list(), which retrieves sample peaks and d18O/16O data from specified files
 #' @param standNames character vector containing the names of the standards
-#' @param standAcceptedVals.vec numeric vector containing the accepted values of the standards
+#' @param standAcceptedVals_vec numeric vector containing the accepted values of the standards
 #' @param accStandRatioSD numeric vector containing the accepted standard deviation values for each of the standards (in the same order as names in standNames)
 #' @return list of length 3 with the following elements:
 #'          `[[1]]`: dataframes of d18O/16O averages and standard deviations for each set of files from input
@@ -1982,12 +1984,12 @@ DXFvendListFromID1<-function(all.df,standName.vec=c("L1","H1","LW")){
 #' }
 # dont export yet
 avg_sd_d18O_standards<-function(allStandards_d18O.list,
-                                standNames=c("L1","H1","LW"), isoName="d18O16O",
-                                standAcceptedVals.vec=c(-8.55,4.85,-3.85),
-                                accStandRatioSD=c(0.2,0.2,0.2)){
+                                standNames, isoName="d18O16O",
+                                standAcceptedVals_vec,
+                                accStandRatioSD){
   
   # make df for avgs (avgs of all d18O in all files for particular standard)
-  standAccepted.mat<-matrix(standAcceptedVals.vec,nrow=length(standAcceptedVals.vec))
+  standAccepted.mat<-matrix(standAcceptedVals_vec,nrow=length(standAcceptedVals_vec))
   standAccepted.df<-as.data.frame(standAccepted.mat)
   dim(standAccepted.df)
   # start df -- will add average of all measured values
@@ -2142,8 +2144,8 @@ stand_lm<-function(acceptedMeas.df,dataName){
 #' @param data.df dataframe of sample peak data 
 #' @param dataName dataset name
 #' @param standName.vec vector of internal standard names
-#' @param standAcceptedVals.vec vector of internal standard delta values
-#' @param standAcceptedSD.vec vector of acceptable internal standard SD in delta values
+#' @param standAcceptedVals_vec vector of internal standard delta values
+#' @param standAcceptedSD_vec vector of acceptable internal standard SD in delta values
 #' @return list of four elements:
 #'   `ret.list[[1]]`: list of deltas by experiment
 #'   `ret.list[[2]]`: average values of deltas in the dataset
@@ -2155,9 +2157,9 @@ stand_lm<-function(acceptedMeas.df,dataName){
 #' }
 #' @export
 internal_standards_summary <- function(data.df, dataName, #outPath,
-                                       standName.vec=c("L1","H1","LW"),
-                                       standAcceptedVals.vec=c(-8.55,4.85,-3.85),
-                                       standAcceptedSD.vec=c(0.2,0.2,0.2)){
+                                       standName.vec,
+                                       standAcceptedVals_vec,
+                                       standAcceptedSD_vec){
   ret.list<-list()
   
   standIsoR.list<-DXFvendListFromID1(all.df=data.df,standName.vec=standName.vec)
@@ -2165,8 +2167,8 @@ internal_standards_summary <- function(data.df, dataName, #outPath,
   if(length(standIsoR.list)>0){
     standAvgSD<-avg_sd_d18O_standards(allStandards_d18O.list = standIsoR.list,
                                     standNames=standName.vec,
-                                    standAcceptedVals.vec=standAcceptedVals.vec,
-                                    accStandRatioSD=standAcceptedSD.vec)
+                                    standAcceptedVals_vec=standAcceptedVals_vec,
+                                    accStandRatioSD=standAcceptedSD_vec)
     # first element: summary of avg d18O/16O and SD d18O/16O for all internal standards
     if(is.null(dim(standAvgSD[[1]]))){
       print("warning: no data returned from calibration")
