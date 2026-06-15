@@ -1093,7 +1093,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
   if(filter_first_sampPk){
   # first sample
   firstSampleInd<-which(procSample$PeakNr==pkNrFirstSampleAfterRefs)
-  print("first sample index:",firstSampleInd)
+  #print("first sample index:",firstSampleInd) # gives error invalid printing digits
   firstSampleVend<-procSample[firstSampleInd,]
   firstSampleTime<-as.numeric(firstSampleVend$Rt)
   # check if other samples present (other than flush)
@@ -1117,7 +1117,7 @@ sample_peaks_processDXF<-function(refTimesOutput,
   }
   # check if there are any sample peaks left after processing out the first 2
   pkNrProc.len<-length(procSample$PeakNr)
-  print("num peaks: ",procSample$PeakNr)
+  #print("num peaks: ",procSample$PeakNr)
   if(pkNrProc.len==0){
     if(length(refTimesOutput[[3]]$Analysis)>0){ # if there's an analysis number
       analysisNum<-refTimesOutput[[3]]$Analysis[1]
