@@ -27,6 +27,12 @@ file.summ<-read_summary(dataPath)
 ```
 ### Abstract
 
+This is the QCIRMS package, which is designed to perform quality control 
+analysis on isotope ratio mass spectrometry (IRMS) data. 
+The package provides tools for reading, processing, and analyzing IRMS 
+data files, allowing researchers to assess the quality of their measurements 
+and identify potential issues.
+
 #### Contact
 [lily-clough@utulsa.edu](lily-clough@utulsa.edu)
 [brett-mckinney@utulsa.edu](brett-mckinney@utulsa.edu)
