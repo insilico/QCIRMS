@@ -5,7 +5,6 @@
 220318_1pct_CO2_NaCl_NaSO4_brines/
 plots/
 cache/
-extdata/
 *.pdf
 *.rds
 .DS_Store
