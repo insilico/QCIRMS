@@ -1,3 +1,6 @@
+library(isoreader)
+library(dplyr)
+
 ############
 # (1)
 #' combineVendFileInfo: function that processes vendor data for a directory of dxf files
@@ -31,23 +34,41 @@ combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Anal
                                                     "d45CO244CO2", "R46CO244CO2", "rd46CO244CO2","d46CO244CO2",
                                                     "R13C12C","d13C12C","AT13C12C","R18O16O","d18O16O", "AT18O16O",
                                                     "R17O16O","d17O16O","Rps45CO244CO2","Rps46CO244CO2"),
-                                     outputID="abiotic",outPath){
+                                     outputID="abiotic",outPath) {
+  # MARKED FOR REMOVAL: This pattern of setting the working directory in a library
+  # is fragile, and generally bad practice.
   oldwd<-getwd()
-  # make a combined data.frame for vendor and file info
   setwd(path)
+  # END MARKED FOR REMOVAL
   
   files<-all_dxf_files()
   vend<-vendor_info_all(files)
-  #print("vend:")
-  #print(vend)
- # just use Identifier1
+
+  # Grab file info from files
   fileInfo<-file_info(files)
-  #print("file info:")
-  #print(fileInfo)
-  #print("Prep")
-  #print(fileInfo$Preparation) # try to fix here
+  
+  # These are the file info columns which we want and expect.
+  file_info_col_map <- c(
+    fileID = "file_id", Identifier1 = "Identifier1",
+    Analysis = "Analysis", Preparation = "Preparation",
+    DataTime = "Date_and_Time"
+  )
+
+  missing_fi <- setdiff(unname(file_info_col_map), colnames(fileInfo))
+
+  # Raise an error if a file info column we expect doesn't exist
+  if(length(missing_fi)>0){
+    stop("combineVendFileInfo(): file_info() did not return expected column(s): ",
+         paste(missing_fi, collapse=", "),
+         ". Found: ", paste(colnames(fileInfo), collapse=", "))
+  }
+
+  # Procedure for removing spaces and commas:
+  # 1.) Only attempt if the number of spaces or commas is greater than 0.
+  # 2.) Substitute all spaces for under scores.
+  # 3.) If there are commas, substitute them for under scores.
+  # 4.) IF there are two consecutive underscores make just one.
   prep_vec_broken <- fileInfo$Preparation
-  # fix spaces and commas if there
   if( (sum(grepl(" ", prep_vec_broken))>0) | (sum(grepl(",",prep_vec_broken))>0) ){
     prep_vec_fix <- gsub(" ","_",prep_vec_broken)
     if(sum(grepl(",", prep_vec_fix))>0){
@@ -58,46 +79,58 @@ combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Anal
       prep_vec_fix<-gsub("__","_",prep_vec_fix)
     }
     fileInfo$Preparation <- prep_vec_fix
-    #print("fix:")
-    #print(prep_vec_fix)
   }
-  
-  #print("new file info:")
-  #print(fileInfo)
 
   # make a list of combined vendor data and file info dfs for each experiment
   combList<-list()
   failedInd<-c()
   failedFiles<-c()
-  for(i in seq(1,dim(fileInfo)[1])){
-    # make file info df to add to vend df
-    mat<-matrix(rep(NA,nrow(vend[[i]])*ncol(fileInfo)),#ncol(fileInfo[[i]])),
-                nrow=nrow(vend[[i]]))
-    df<-as.data.frame(mat)
-    df[1:nrow(df),]<-fileInfo[i,]
-    #print("Df:")
-    #print(df)
-    # need to check if there is data
-    isVendData <- !(dim(vend[[i]])[1]==0)
-    #print("vend before loop")
-    #print(vend[[i]][,2:ncol(vend[[i]])])
-    if(isVendData){
-      # make a combined df
-      combDF<-data.frame(cbind(df,vend[[i]][,2:ncol(vend[[i]])]))
-      # fileId, Identifier1, Analysis, DateTime, PeakNr,
-      # Start, Rt, End, Ampl44,
-      #print("combDF")
-      colnames(combDF)<-combColNames
-      #print(combDF)
-      # add to list
-      combList[[i]]<-combDF
-    }else{
-      fileName<-files[i]
-      print(paste("No data found in file: ",fileName,". File name inserted at index ",i,sep=""))
-      failedFiles<-c(failedFiles,fileName)
-      failedInd<-c(failedInd,i)
-      combList[[i]]<-fileName
+
+  for(i in seq_len(nrow(fileInfo))) {
+    # If this vendor data tibble has more than 0 rows,
+    # then we will iterate over it.
+    isVendData <- nrow(vend[[i]]) > 0
+    
+    if (isVendData) {
+      fi_block <- fileInfo |>
+        # Select and renames the coulmns in one step
+        select(all_of(file_info_col_map)) |>
+        slice(rep(i, nrow(vend[[i]])))  
+
+      combDF <- dplyr::bind_cols(fi_block, vend[[i]])
+
+      # Explicitly throw an error if the expected columns aren't present at the end.
+      missing_final <- setdiff(combColNames, colnames(combDF))
+      if (length(missing_final) > 0) {
+        stop("combineVendFileInfo(): expected column(s) not found for file ",
+             files[i], ": ", paste(missing_final, collapse = ", "))
+      }
+
+      # Explicitly use select all_of on `combColNames` to ensure that columns are in the correct order.
+      combDF <- combDF |> select(all_of(combColNames))
+
+      combList[[i]] <- combDF
+    } else {
+      fileName <- files[i]
+      print(paste0("No data found in file: ", fileName, ". File name inserted at index ", i))
+      failedFiles <- c(failedFiles, fileName)
+      failedInd <- c(failedInd, i)
+      combList[[i]] <- fileName
     }
+
+    if (length(failedInd) > 0) {
+      print("Removing files with no data from the analysis...")
+      onlyDat <- combList[-failedInd]
+      failedFiles.df <- as.data.frame(matrix(failedFiles), ncol = 1)
+      colnames(failedFiles.df) <- c("No_Data")
+      setwd(outPath)
+      write.table(failedFiles.df, file = paste0(outputID, "_NoData.csv", sep = ""), row.names = F, quote = F, sep = ", ")
+      setwd(oldwd)
+      return(onlyDat)
+    }
+
+    setwd(oldwd)
+    return(combList)
   }
   
   # if there is missing data remove that file
@@ -1174,22 +1207,91 @@ all_dxf_files<-function(path=NULL){
 
 
 # (13)
-#' vendor_info: function that returns the vendor table for a given dxf file
-#' @param file string that gives the name of the dxf file
-#' @return dataframe containing the vendor table informatino 
+#' vendor_info: function that returns the vendor table for a given dxf file, with columns
+#' explictiy selected and renamed by NAME fro the raw Isodat headers.
+#' @param file string that gives the name of the .dxf file
+#' @param vendColMap named character vector. Names = the clean column names this function (and combineVendFileInfo)
+#'   promises to return. Value = the literal raw Isodat/isoreader column header for that quantity.
+#'   Defaults to mapping verified against a real continuous-flow CO2 vendor table.
+#' @return data.frame of vendor table data, columns named per names(vendColMap), in vendColMap order
+#'   The vendor table's own `file_id` column is dropped here (combineVendFileInfo gets fileID from `file_info()` instead).
 #' @examples
 #' \dontrun{
 #' # Usage example
 #' vend.df <- vendor_info("170526_Na2SO4 L_(1).dxf")
 #' }
 #' @export
-vendor_info<-function(file){
-  msdat<-iso_read_continuous_flow(file)
-  file.info<-msdat %>% iso_get_file_info()
-  ident1<-file.info$`Identifier 1`
-  vendor_info<-msdat %>% iso_get_vendor_data_table()
-  vendor_info.df<-as.data.frame(vendor_info)
-  return(vendor_info.df)
+vendor_info<-function(file,
+                      vendColMap = c(
+                      PeakNr        = "Nr.",
+                      Start         = "Start",
+                      Rt            = "Rt",
+                      End           = "End",
+                      Ampl44        = "Ampl 44",
+                      Ampl45        = "Ampl 45",
+                      Ampl46        = "Ampl 46",
+                      BGD44         = "BGD 44",
+                      BGD45         = "BGD 45",
+                      BGD46         = "BGD 46",
+                      rIntensity44  = "rIntensity 44",
+                      rIntensity45  = "rIntensity 45",
+                      rIntensity46  = "rIntensity 46",
+                      rIntensityAll = "rIntensity All",
+                      Intensity44   = "Intensity 44",
+                      Intensity45   = "Intensity 45",
+                      Intensity46   = "Intensity 46",
+                      IntensityAll  = "Intensity All",
+                      ListFirstPeak = "List First Peak",
+                      rR45CO244CO2  = "rR 45CO2/44CO2",
+                      rR46CO244CO2  = "rR 46CO2/44CO2",
+                      IsRef         = "Is Ref.?",
+                      R45CO244CO2   = "R 45CO2/44CO2",
+                      RefName       = "Ref. Name",
+                      rd45CO244CO2  = "rd 45CO2/44CO2",
+                      d45CO244CO2   = "d 45CO2/44CO2",
+                      R46CO244CO2   = "R 46CO2/44CO2",
+                      rd46CO244CO2  = "rd 46CO2/44CO2",
+                      d46CO244CO2   = "d 46CO2/44CO2",
+                      R13C12C       = "R 13C/12C",
+                      d13C12C       = "d 13C/12C",
+                      AT13C12C      = "AT% 13C/12C",
+                      R18O16O       = "R 18O/16O",
+                      d18O16O       = "d 18O/16O",
+                      AT18O16O      = "AT% 18O/16O",
+                      R17O16O       = "R 17O/16O",
+                      d17O16O       = "d 17O/16O",
+                      Rps45CO244CO2 = "Rps 45CO2/44CO2",
+                      Rps46CO244CO2 = "Rps 46CO2/44CO2"
+                      )) {
+  msdat <- iso_read_continuous_flow(file)
+
+  # Pull the FULL, natively-named vendor table, with no renaming.
+  # We want to inspect what is here before we trust anything about them.
+  vend_raw <- as.data.frame(msdat |> iso_get_vendor_data_table())
+
+  # vendColMap's VALUES are the raw Isodat headers we are expecting.
+  # So, we will first verify that they are all there before we try to use them.
+  raw_names_required <- unname(vendColMap)
+  missing_raw <- setdiff(raw_names_required, colnames(vend_raw))
+
+  if (length(missing_raw) > 0) {
+    stop(
+      "vendor_info(): file '", file, "' is missing expected vendor-table ",
+      "column(s): ", paste(missing_raw, collapse = ", "), ".\n",
+      "Columns actually present: ", paste(colnames(vend_raw), collapse = ", "), ".\n",
+      "This usually means this file's gas configuration/method differs from ",
+      "what vendColMap expects -- update vendColMap or inspect the file."
+    )
+  }
+
+  # Select the desired columns by name, rather than positionally.
+  vend_sel <- vend_raw[, raw_names_required, drop = FALSE]
+
+  # Now that we have ensured that the columns in `vend_sel` are correct, we will
+  # apply the column name change.
+  colnames(vend_sel) <- names(vendColMap)
+
+  vend_sel
 }
 
 
@@ -1233,7 +1335,7 @@ file_info<-function(files, path=NULL){
   msdat<-iso_read_continuous_flow(files[1:num_files])
   
  #default cols
-  file_info<-msdat %>%
+  file_info<-msdat |>
     iso_get_file_info(
       select = c(
         #rename?
