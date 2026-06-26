@@ -355,7 +355,6 @@ removeFailedAnalysesDXF<-function(sepList,
           if(sum(grepl(" ", failedRefIsoID.vec)>0)){
             failedRefIsoID.vec<-gsub(" ","_",failedRefIsoID.vec)
           }
-          #*
           failedRefIsoSD.vec<-c(failedRefIsoSD.vec,refIsoCheck[[2]]$SD_d18O16O)
           failedRefIsoSDC.vec<-c(failedRefIsoSDC.vec,refIsoCheck[[2]]$SD_d13C12C)
           failedRefIsoReason.vec<-c(failedRefIsoReason.vec,refReason)
@@ -1621,6 +1620,9 @@ QAQC_IRMS<-function(unfilteredPath,
   # write to file in curr dir and combined directory
   # reference data
   oldwd<-getwd()
+  if (!dir.exists(outPath)) {
+    	  dir.create(outPath)
+  }
   setwd(outPath)
   write.csv(currFiltered[[1]],
             file=paste(dataName,"_refs_allChecks.csv",sep=""),quote=F,row.names=F)
