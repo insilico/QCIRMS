@@ -12,7 +12,7 @@ QAQC_IRMS(
   standAcceptedVals_vec,
   standAcceptedSD_vec,
   internalStandID.vec = c("L1", "H1", "LW"),
-  useColNames = c("fileId", "Identifier1", "Analysis", "Preparation", "DateTime",
+  useColNames = c("fileID", "Identifier1", "Analysis", "Preparation", "DataTime",
     "PeakNr", "Start", "Rt", "End", "Ampl44", "Ampl45", "Ampl46", "BGD44", "BGD45",
     "BGD46", "rIntensity44", "rIntensity45", "rIntensity46", "rIntensityAll",
     "Intensity44", "Intensity45", "Intensity46", "IntensityAll", "ListFirstPeak",
@@ -58,7 +58,7 @@ QAQC_IRMS(
 
 \item{internalStandID.vec}{vector of internal standard names for calibration; default = c("L1","H1","LW")}
 
-\item{useColNames}{vector of column names to extract vendor data from in the dxf files; default = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+\item{useColNames}{vector of column names to extract vendor data from in the dxf files; default = c("fileID","Identifier1","Analysis","Preparation","DataTime",
 "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
 "rIntensity46","rIntensityAll","Intensity44","Intensity45",

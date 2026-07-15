@@ -318,7 +318,7 @@ if (CHECK_INTERNAL_STANDARDS){
 
 ##### visualize pass/fail in pdfs of chromatogram thumbnails
 # Get all filenames of .dxf files in the directory
-passFiles <- unique(samps.dat$fileId)
+passFiles <- unique(samps.dat$fileID)
 
 if (!is.null(passFiles)){
   # get passed and failed files from previously defined file names

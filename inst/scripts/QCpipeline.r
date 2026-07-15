@@ -263,7 +263,7 @@ standlm[[2]]
 
 ##### visualize pass/fail in pdfs of chromatogram thumbnails
 # Get all filenames of .dxf files in the directory
-passFiles <- unique(samps.dat$fileId)
+passFiles <- unique(samps.dat$fileID)
 
 # get passed and failed files from previously defined file names
 passedInd <- which(fileNames %in% passFiles)

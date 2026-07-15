@@ -121,7 +121,7 @@ for(i in seq(1,length(dxf_dirs))){
     firstSampTint=20,
     outPath = WRITE_PATH,
     verbose = TRUE,
-    useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
+    useColNames=c("fileID","Identifier1","Analysis","Preparation","DataTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -175,7 +175,7 @@ for(i in seq(1,length(dxf_dirs))){
   }
 
  # Get all filenames of .dxf files in the directory
- passFiles <- unique(samps.dat$fileId)
+ passFiles <- unique(samps.dat$fileID)
  if(!is.null(passFiles)){
   # get passed and failed files from previously defined file names
   passedInd <- which(fileNames %in% passFiles)
@@ -312,7 +312,7 @@ for(i in seq(1,length(dxf_dirs))){
 #  firstSampTint=20,
 #  outPath = RESULT_PATH,
 #  verbose = TRUE,
-# useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
+# useColNames=c("fileID","Identifier1","Analysis","Preparation","DataTime",
 #                                  "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 #                                  "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
 #                                  "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -375,7 +375,7 @@ for(i in seq(1,length(dxf_dirs))){
 # visualize pass/fail in pdfs of chromatogram thumbnails
 ```{r pass-fail-pdfs}
 # Get all filenames of .dxf files in the directory
-#passFiles <- unique(samps.dat$fileId)
+#passFiles <- unique(samps.dat$fileID)
 #if (!is.null(passFiles)){
   # get passed and failed files from previously defined file names
  # passedInd <- which(fileNames %in% passFiles)

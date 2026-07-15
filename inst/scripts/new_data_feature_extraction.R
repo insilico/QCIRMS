@@ -115,10 +115,10 @@ for(i in seq(1, length(dxf_dirs.vec))){
   fullData.list<-separate_by_analysis(newdata)
   length(fullData.list)
   # colnames to not take avg and sd of
-  rm_cols <- c("fileId", "Identifier1", "Analysis", "Preparation",
-               "DateTime", "PeakNr", "Start", "Rt", "End", "ListFirstPeak",
+  rm_cols <- c("fileID", "Identifier1", "Analysis", "Preparation",
+               "DataTime", "PeakNr", "Start", "Rt", "End", "ListFirstPeak",
                "IsRef", "RefName", "Rps45CO244CO2", "Rps46CO244CO2")
-  add_back <- c("fileId", "Identifier1", "Analysis", "Preparation", "DateTime")
+  add_back <- c("fileID", "Identifier1", "Analysis", "Preparation", "DataTime")
   red_meas.list <- list()
   # loop though the dataframes in list
   for(j in seq(1,length(fullData.list))){

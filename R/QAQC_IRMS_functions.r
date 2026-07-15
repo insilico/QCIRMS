@@ -13,7 +13,7 @@ library(dplyr)
 #' \dontrun{
 #' # Usage example
 #' vend.list <- combineVendFileInfo(path = "./abiotic/", 
-#'                                  combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+#'                                  combColNames = c("fileID","Identifier1","Analysis","Preparation","DataTime",
 #'                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 #'                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
 #'                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -1476,7 +1476,7 @@ removeRefAnalysisDXF<-function(filtered.list, refInd=7, sampInd=8,
 #' @param internalStandID.vec vector of internal standard names for calibration; default = c("L1","H1","LW")
 #' @param standAcceptedVals_vec vector of accepted delta values for internal standards; default value = c(-8.55,4.85,-3.85),
 #' @param standAcceptedSD_vec vector of acceptable sd of delta values for intenral standards; default value = c(0.2,0.2,0.2)
-#' @param useColNames vector of column names to extract vendor data from in the dxf files; default = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+#' @param useColNames vector of column names to extract vendor data from in the dxf files; default = c("fileID","Identifier1","Analysis","Preparation","DataTime",
 #'                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
 #'                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
 #'                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -1545,7 +1545,7 @@ QAQC_IRMS<-function(unfilteredPath,
                     standAcceptedVals_vec,
                     standAcceptedSD_vec,
                     internalStandID.vec=c("L1","H1","LW"),
-                    useColNames=c("fileId","Identifier1","Analysis","Preparation","DateTime",
+                    useColNames=c("fileID","Identifier1","Analysis","Preparation","DataTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -2449,7 +2449,7 @@ plot_pass_fail_spectra <- function(samps.dat, dataName="data", plotsPath, dxf_pa
   fileNames<-all_dxf_files(path = dxf_path)
   fileNames
   # get passed file names
-  passedFiles <- unique(samps.dat$fileId) 
+  passedFiles <- unique(samps.dat$fileID) 
   # get failed files 
   passedInd <- which(fileNames %in% passedFiles)
   failedFiles <- fileNames[-passedInd]

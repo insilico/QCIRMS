@@ -49,7 +49,7 @@ dim(ms.df)
 
 
 ## find which experiment is missing in the ts list
-ms_files.26 <- ms.list[[26]]$fileId
+ms_files.26 <- ms.list[[26]]$fileID
 ms_an.26 <- ms.list[[26]]$Analysis
 length(ms_an.26)
 # [1] 35
@@ -103,7 +103,7 @@ ms_ts_data <- ms_ts_data[, sd_filter!=0]
 dim(ms_ts_data)  # [1] 853  82
 
 ######## Create the meta data
-meta_data_features <- c("Analysis", "fileId", "Identifier1", "Preparation","DateTime")
+meta_data_features <- c("Analysis", "fileID", "Identifier1", "Preparation","DataTime")
 meta_data <- ms_ts_merge_all_cols %>%
   select(one_of(meta_data_features))
 
