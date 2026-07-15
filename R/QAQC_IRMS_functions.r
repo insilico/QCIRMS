@@ -25,7 +25,7 @@ library(dplyr)
 #'                                  outputID = "abiotic")
 #' }
 #' @export
-combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+combineVendFileInfo<-function(path,combColNames = c("fileID","Identifier1","Analysis","Preparation","DataTime",
                                                    "PeakNr","Start","Rt","End","Ampl44","Ampl45",
                                                     "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
                                                     "rIntensity46","rIntensityAll","Intensity44","Intensity45",
@@ -56,11 +56,17 @@ combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Anal
 
   missing_fi <- setdiff(unname(file_info_col_map), colnames(fileInfo))
 
-  # Raise an error if a file info column we expect doesn't exist
+  # Raise a warning if a file info column we expect doesn't exist
   if(length(missing_fi)>0){
-    stop("combineVendFileInfo(): file_info() did not return expected column(s): ",
+    warning("combineVendFileInfo(): file_info() did not return expected column(s): ",
          paste(missing_fi, collapse=", "),
-         ". Found: ", paste(colnames(fileInfo), collapse=", "))
+         ". Found: ", paste(colnames(fileInfo), collapse=", "), 
+         "\n\nMissing columns will be replaced with NAs.\n")
+    
+    #add missing columns to df, fill with NAs
+    for (col in missing_fi) {
+      fileInfo[[col]] <- rep(NA, nrow(fileInfo))
+    }
   }
 
   # Procedure for removing spaces and commas:
@@ -99,11 +105,18 @@ combineVendFileInfo<-function(path,combColNames = c("fileId","Identifier1","Anal
 
       combDF <- dplyr::bind_cols(fi_block, vend[[i]])
 
-      # Explicitly throw an error if the expected columns aren't present at the end.
+      # Raise warning if the expected columns aren't present at the end.
       missing_final <- setdiff(combColNames, colnames(combDF))
       if (length(missing_final) > 0) {
-        stop("combineVendFileInfo(): expected column(s) not found for file ",
-             files[i], ": ", paste(missing_final, collapse = ", "))
+        warning("combineVendFileInfo(): expected column(s) not found for file ",
+             files[i], ": ", paste(missing_final, collapse = ", "),
+             "\n\nMissing columns will be replaced with NAs.\n")
+        
+        #add missing columns, fill with NAs
+        for (col in missing_final) {
+          combDF[[col]] <- rep(NA, nrow(combDF))
+        }
+        
       }
 
       # Explicitly use select all_of on `combColNames` to ensure that columns are in the correct order.
