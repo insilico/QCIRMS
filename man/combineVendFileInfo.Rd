@@ -6,7 +6,7 @@
 \usage{
 combineVendFileInfo(
   path,
-  combColNames = c("fileId", "Identifier1", "Analysis", "Preparation", "DateTime",
+  combColNames = c("fileID", "Identifier1", "Analysis", "Preparation", "DataTime",
     "PeakNr", "Start", "Rt", "End", "Ampl44", "Ampl45", "Ampl46", "BGD44", "BGD45",
     "BGD46", "rIntensity44", "rIntensity45", "rIntensity46", "rIntensityAll",
     "Intensity44", "Intensity45", "Intensity46", "IntensityAll", "ListFirstPeak",
@@ -38,7 +38,7 @@ combineVendFileInfo: function that processes vendor data for a directory of dxf 
 \dontrun{
 # Usage example
 vend.list <- combineVendFileInfo(path = "./abiotic/", 
-                                 combColNames = c("fileId","Identifier1","Analysis","Preparation","DateTime",
+                                 combColNames = c("fileID","Identifier1","Analysis","Preparation","DataTime",
                                   "PeakNr","Start","Rt","End","Ampl44","Ampl45",
                                   "Ampl46","BGD44","BGD45","BGD46","rIntensity44","rIntensity45",
                                   "rIntensity46","rIntensityAll","Intensity44","Intensity45",

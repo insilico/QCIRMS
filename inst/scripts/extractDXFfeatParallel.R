@@ -272,13 +272,13 @@ print(paste("feature extraction: ",timeDiff,sep=""))
 #colnames(extrFeat.tab) #includes Analysis
 #final.df<-extrFeat.tab # build on tsfeatures df
 
-#colsToAdd<-c("biotic","fileId","Identifier1",    
+#colsToAdd<-c("biotic","fileID","Identifier1",    
 #             "Preparation","MgSO4","NaCl",         
 ##             "NaHCO3","Na2SO4","MgSO4_L","NaCl_U",       
 #             "NaCl_L","NaHCO3_L","NaHCO3_U","Na2SO4_L",     
 #             "Na2SO4_U","rel_MgSO4","rel_NaCl","rel_NaHCO3",   
 #             "rel_Na2SO4","saltContent","anion","cation")
-#colsToAdd<-c("fileId","Identifier1","DateTime",    
+#colsToAdd<-c("fileID","Identifier1","DataTime",    
 #  "Preparation","biotic","avg_d13C12C",
 #  "avg_d18O13C","avg_d18O16O","avg_Ampl46","avg_IntensityAll",
 #  "avg_rIntensityAll","avg_pkArea")
@@ -339,7 +339,7 @@ print(paste("feature extraction: ",timeDiff,sep=""))
 
 # organize df
 #colOrder<-c(# labels:
-#            "fileId", "DateTime","Analysis",
+#            "fileID", "DataTime","Analysis",
 #            "Identifier1",
 #            "Preparation",
 #            "biotic",
