@@ -1971,7 +1971,8 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     
     full_title <- paste(raw.title, "\n",raw_an,sep="")    # plot
     if(dim(raw.dat)[1]>0){
-      generic_raw_plot(raw.df=raw.dat,title=full_title)
+      #generic_raw_plot(raw.df=raw.dat,title=full_title)
+      chromatogram_raw_plot(raw.df=raw.dat)
     }
   }
   par(mfrow=c(1,1))
@@ -1986,6 +1987,71 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
   
 }
 
+# (30 candidate to replace generic_raw_plot)
+#' chromatogram_raw_plot: function to plot raw data using ggplot
+#' @param raw.df full dataframe of raw data
+#' @param dxf_path dxf file path
+#' @param note default text shows .dxf file name
+#' @param title title of the plot
+#' @param path string of the path to the output directory
+#' @param write_pdf logical; whether to write a pdf file of the plot
+#' @param pdf_name string of the pdf name; use the extension ".pdf"
+#' @examples
+#' \dontrun{
+#' # Usage Example
+#' chromatogram_raw_plot(rawDat.df, dxf_path, title = "170525_NaHCO3 L + NaCl L_.dxf")
+#' }
+#' @export
+#' 
+chromatogram_raw_plot<-function(raw.df, dxf_path, note = basename(dxf_path), title=NULL, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
+  
+  if(!is.null(path)){
+    oldwd<-getwd()
+    setwd(path)
+  }
+  
+  if (is.null(title)) {
+    info_builtin_file <- file_info(dxf_path)
+    analysis_num <- info_builtin_file$Analysis
+    title <- paste0("Analysis Number: ", analysis_num)
+  }
+  
+  
+  if(write_pdf==T){
+    pdf(file=pdf_name,width=6,height=4)
+  }
+  
+  # get intensity data for each mass
+  v44<-raw.df$v44.mV
+  v45<-raw.df$v45.mV
+  v46<-raw.df$v46.mV
+  # get time data
+  time.s<-raw.df$time.s
+  
+  #plot chromatogram
+  plot<- ggplot(data = raw.df, mapping = aes(x = time.s)) + 
+    geom_line(aes(y = v46, color = "v46")) + 
+    geom_line(aes(y = v45, color = "v45")) +
+    geom_line(aes(y = v44, color = "v44")) +
+    scale_color_manual(
+      name = "",values = c("v46" = "magenta","v45" = "green","v44" = "blue"),
+      labels = expression(""^46*CO[2],""^45*CO[2],""^44*CO[2])) +
+    labs(title = title,
+         caption = note,
+         x = "Time (s)",y = "Intensity (mV)") +
+    theme(plot.title = element_text(hjust = 0.5), 
+          plot.caption = element_text(hjust = 1.3))
+  
+  #show plot
+  print(plot)
+  
+  if(write_pdf==T){
+    dev.off()
+  }
+  if(!is.null(path)){
+    setwd(oldwd)
+  }
+}
 
 # (30)
 #' generic_raw_plot: function to plot raw data using generic plot

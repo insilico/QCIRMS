@@ -2,18 +2,41 @@
 % Please edit documentation in R/QAQC_IRMS_functions.r
 \name{vendor_info}
 \alias{vendor_info}
-\title{vendor_info: function that returns the vendor table for a given dxf file}
+\title{vendor_info: function that returns the vendor table for a given dxf file, with columns
+explictiy selected and renamed by NAME fro the raw Isodat headers.}
 \usage{
-vendor_info(file)
+vendor_info(
+  file,
+  vendColMap = c(PeakNr = "Nr.", Start = "Start", Rt = "Rt", End = "End", Ampl44 =
+    "Ampl 44", Ampl45 = "Ampl 45", Ampl46 = "Ampl 46", BGD44 = "BGD 44", BGD45 =
+    "BGD 45", BGD46 = "BGD 46", rIntensity44 = "rIntensity 44", rIntensity45 =
+    "rIntensity 45", rIntensity46 = "rIntensity 46", rIntensityAll = "rIntensity All",
+    Intensity44 = "Intensity 44", Intensity45 = "Intensity 45", Intensity46 =
+    "Intensity 46", IntensityAll = "Intensity All", ListFirstPeak = "List First Peak",
+    rR45CO244CO2 = "rR 45CO2/44CO2", rR46CO244CO2 = "rR 46CO2/44CO2", 
+     IsRef =
+    "Is Ref.?", R45CO244CO2 = "R 45CO2/44CO2", RefName = "Ref. Name", rd45CO244CO2 =
+    "rd 45CO2/44CO2", d45CO244CO2 = "d 45CO2/44CO2", R46CO244CO2 = "R 46CO2/44CO2",
+    rd46CO244CO2 = "rd 46CO2/44CO2", d46CO244CO2 = "d 46CO2/44CO2", R13C12C =
+    "R 13C/12C", d13C12C = "d 13C/12C", AT13C12C = "AT\% 13C/12C", R18O16O = "R 18O/16O",
+    d18O16O = "d 18O/16O", AT18O16O = "AT\% 18O/16O", R17O16O = "R 17O/16O", d17O16O =
+    "d 17O/16O", Rps45CO244CO2 = "Rps 45CO2/44CO2", Rps46CO244CO2 = "Rps 46CO2/44CO2")
+)
 }
 \arguments{
-\item{file}{string that gives the name of the dxf file}
+\item{file}{string that gives the name of the .dxf file}
+
+\item{vendColMap}{named character vector. Names = the clean column names this function (and combineVendFileInfo)
+promises to return. Value = the literal raw Isodat/isoreader column header for that quantity.
+Defaults to mapping verified against a real continuous-flow CO2 vendor table.}
 }
 \value{
-dataframe containing the vendor table informatino
+data.frame of vendor table data, columns named per names(vendColMap), in vendColMap order
+The vendor table's own \code{file_id} column is dropped here (combineVendFileInfo gets fileID from \code{file_info()} instead).
 }
 \description{
-vendor_info: function that returns the vendor table for a given dxf file
+vendor_info: function that returns the vendor table for a given dxf file, with columns
+explictiy selected and renamed by NAME fro the raw Isodat headers.
 }
 \examples{
 \dontrun{
