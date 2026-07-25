@@ -1935,8 +1935,9 @@ peak_area_trap<-function(start.t, end.t, time.vec, int.vec){
 
 # (29)
 #' generic_plot_all_raw: function that plots all the raw data in a list containing raw data from different experiments
-#' @param raw.list list whose elements are the raw.df to be plotted
-#' @param path string of the path to the output directory
+#' @param raw_list list whose elements are the raw.df to be plotted
+#' @param results_path string of the path to the output directory
+#' @param dxf_path string of the path to the dxf files
 #' @param write_pdf logical; whether to write a pdf of the graphs
 #' @param pdf_name string of the pdf filename, use extension ".pdf"
 #' @examples
@@ -1945,11 +1946,11 @@ peak_area_trap<-function(start.t, end.t, time.vec, int.vec){
 #' generic_plot_all_raw(rawList)
 #' }
 #' @export
-generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_dxf.pdf"){
+generic_plot_all_raw<-function(raw_list, results_path=NULL, dxf_path=NULL, write_pdf=T, pdf_name="all_dxf.pdf"){
   
-  if(!is.null(path)){
+  if(!is.null(results_path)){
     oldwd<-getwd()
-    setwd(path)
+    setwd(results_path)
   }
   
   if(write_pdf==T){
@@ -1958,9 +1959,11 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
   
   #raw.length<-length(raw.list)
   par(mfrow=c(2,3))
-  for(i in seq_along(raw.list)){
+  for(i in seq_along(raw_list)){
     # get title
-    raw.dat<-raw.list[[i]]
+    raw.dat<-raw_list[[i]]
+    #cat("raw.dat:", str(raw.dat),"\n")
+    #cat("path:", results_path, "\n")
     raw.title<-raw.dat$file_id[1]
     #read in dxf, bam: don't read, already have data in raw.list
     #iso.cf <- iso_read_continuous_flow(raw.title)
@@ -1971,8 +1974,9 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     
     full_title <- paste(raw.title, "\n",raw_an,sep="")    # plot
     if(dim(raw.dat)[1]>0){
-      #generic_raw_plot(raw.df=raw.dat,title=full_title)
-      chromatogram_raw_plot(raw.df=raw.dat)
+      generic_raw_plot(raw.df=raw.dat,title=full_title)
+      # this let's us get the analysis number from dxf_path data
+      #chromatogram_raw_plot(raw.df=raw.dat,dxf_path = dxf_path, write_pdf=F)
     }
   }
   par(mfrow=c(1,1))
@@ -1981,7 +1985,60 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
     dev.off()
   }
   
-  if(!is.null(path)){
+  if(!is.null(results_path)){
+    setwd(oldwd)
+  }
+  
+}
+
+#(29)
+#' chromatogram_plot_all_raw: function that plots all the raw data in a list containing raw data from different experiments
+#' @param raw.list list whose elements are the raw.df to be plotted
+#' @param result_path string of the path to the output directory
+#' @param data_path #NEW path to dxf files 
+#' @param write_pdf logical; whether to write a pdf of the graphs
+#' @param pdf_name string of the pdf filename, use extension ".pdf"
+#' @examples
+#' \dontrun{
+#' # Usage Example
+#' chromatogram_plot_all_raw(rawList, data_path)
+#' }
+#' @export
+#' 
+chromatogram_plot_all_raw<-function(raw.list, result_path=NULL, data_path, write_pdf=F, pdf_name="test_all_dxf.pdf"){
+  
+  if(!is.null(result_path)){
+    oldwd<-getwd()
+    setwd(result_path)
+  }
+  
+  if(write_pdf==T){
+    pdf(file=pdf_name,width=6,height=4)
+  }
+  
+  par(mfrow=c(2,3))
+  for(i in seq_along(raw.list)){
+    # get individual files
+    raw.dat<-raw.list[[i]]
+    
+    #get dxf filepaths
+    dxf_file_paths <- list.files(
+      path = data_path,
+      pattern = "\\.dxf$",
+      full.names = TRUE
+    )
+    
+    if(dim(raw.dat)[1]>0){
+      chromatogram_raw_plotl(raw.df=raw.dat, dxf_path = dxf_file_paths[i])
+    }
+  }
+  par(mfrow=c(1,1))
+  
+  if(write_pdf==T){
+    dev.off()
+  }
+  
+  if(!is.null(data_path)){
     setwd(oldwd)
   }
   
@@ -2003,11 +2060,11 @@ generic_plot_all_raw<-function(raw.list, path=NULL, write_pdf=T, pdf_name="all_d
 #' }
 #' @export
 #' 
-chromatogram_raw_plot<-function(raw.df, dxf_path, note = basename(dxf_path), title=NULL, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
+chromatogram_raw_plot<-function(raw.df, dxf_path=NULL, note = basename(dxf_path), title=NULL, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
   
-  if(!is.null(path)){
+  if(!is.null(dxf_path)){
     oldwd<-getwd()
-    setwd(path)
+    setwd(dxf_path)
   }
   
   if (is.null(title)) {
@@ -2048,7 +2105,7 @@ chromatogram_raw_plot<-function(raw.df, dxf_path, note = basename(dxf_path), tit
   if(write_pdf==T){
     dev.off()
   }
-  if(!is.null(path)){
+  if(!is.null(dxf_path)){
     setwd(oldwd)
   }
 }
@@ -2484,7 +2541,7 @@ plot_by_analysis_num <- function(dxf_path, analysisNum.vec, write_pdf = F, plot_
   # get file names in directory and raw data for plotting
   dxf_files <- find_files_by_analysis_num(path = dxf_path, analysisNum.vec = analysisNum.vec)
   rawList <- raw_data_all(files = dxf_files, path = dxf_path)
-  generic_plot_all_raw(raw.list = rawList, path = plot_path, write_pdf = write_pdf, pdf_name = pdf_name)
+  generic_plot_all_raw(raw_list = rawList, path = plot_path, write_pdf = write_pdf, pdf_name = pdf_name)
 }
 
 
@@ -2526,7 +2583,7 @@ plot_pass_fail_spectra <- function(samps.dat, dataName="data", plotsPath, dxf_pa
   length(failed_raw.list)
   # plot all raw data and write to pdfs
   # passed QC - already in dir to write pdfs to from writing data
-  generic_plot_all_raw(raw.list=passed_raw.list, path=plotsPath,
+  generic_plot_all_raw(rawlist=passed_raw.list, path=plotsPath,
                        write_pdf=T,
                        pdf_name=paste(dataName,"_passed_qc_spectra.pdf", sep="")) 
   # failed QC

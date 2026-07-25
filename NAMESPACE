@@ -3,6 +3,7 @@
 export(QAQC_IRMS)
 export(all_PA_trap)
 export(all_dxf_files)
+export(chromatogram_plot_all_raw)
 export(chromatogram_raw_plot)
 export(combineVendFileInfo)
 export(file_info)

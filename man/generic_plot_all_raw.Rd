@@ -5,16 +5,19 @@
 \title{generic_plot_all_raw: function that plots all the raw data in a list containing raw data from different experiments}
 \usage{
 generic_plot_all_raw(
-  raw.list,
-  path = NULL,
+  raw_list,
+  results_path = NULL,
+  dxf_path = NULL,
   write_pdf = T,
   pdf_name = "all_dxf.pdf"
 )
 }
 \arguments{
-\item{raw.list}{list whose elements are the raw.df to be plotted}
+\item{raw_list}{list whose elements are the raw.df to be plotted}
 
-\item{path}{string of the path to the output directory}
+\item{results_path}{string of the path to the output directory}
+
+\item{dxf_path}{string of the path to the dxf files}
 
 \item{write_pdf}{logical; whether to write a pdf of the graphs}
 

@@ -6,7 +6,7 @@
 \usage{
 chromatogram_raw_plot(
   raw.df,
-  dxf_path,
+  dxf_path = NULL,
   note = basename(dxf_path),
   title = NULL,
   path = NULL,
