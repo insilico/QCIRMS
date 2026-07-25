@@ -2029,7 +2029,7 @@ chromatogram_plot_all_raw<-function(raw.list, result_path=NULL, data_path, write
     )
     
     if(dim(raw.dat)[1]>0){
-      chromatogram_raw_plotl(raw.df=raw.dat, dxf_path = dxf_file_paths[i])
+      chromatogram_raw_plot(raw.df=raw.dat, dxf_path = dxf_file_paths[i])
     }
   }
   par(mfrow=c(1,1))
