@@ -2062,10 +2062,10 @@ chromatogram_plot_all_raw<-function(raw.list, result_path=NULL, data_path, write
 #' 
 chromatogram_raw_plot<-function(raw.df, dxf_path=NULL, note = basename(dxf_path), title=NULL, path=NULL, write_pdf=F, pdf_name="spectra.pdf"){
   
-  if(!is.null(dxf_path)){
-    oldwd<-getwd()
-    setwd(dxf_path)
-  }
+  #if(!is.null(dxf_path)){
+  #  oldwd<-getwd()
+  #  setwd(dxf_path)
+  #}
   
   if (is.null(title)) {
     info_builtin_file <- file_info(dxf_path)
@@ -2105,9 +2105,9 @@ chromatogram_raw_plot<-function(raw.df, dxf_path=NULL, note = basename(dxf_path)
   if(write_pdf==T){
     dev.off()
   }
-  if(!is.null(dxf_path)){
-    setwd(oldwd)
-  }
+  #if(!is.null(dxf_path)){
+  #  setwd(oldwd)
+  #}
 }
 
 # (30)
