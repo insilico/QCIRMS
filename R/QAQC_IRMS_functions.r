@@ -142,8 +142,8 @@ combineVendFileInfo<-function(path,combColNames = c("fileID","Identifier1","Anal
       return(onlyDat)
     }
 
-    setwd(oldwd)
-    return(combList)
+    #setwd(oldwd)
+    #return(combList)
   }
   
   # if there is missing data remove that file
